@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 try:
     import logging, logging.config, os
     import numpy as np
