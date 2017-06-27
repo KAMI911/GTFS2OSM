@@ -2,6 +2,12 @@
 
 Tools to process GTFS data and import them to OSM.
 
+## Installation
+
+Clone or download this repository, then run pip:
+
+    pip install -r requirements.txt
+
 ## g2o-stops utility
 
 The g2o-stops utility reads GTFS stops.txt files and try to combine with OSM data.
