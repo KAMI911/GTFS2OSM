@@ -39,6 +39,6 @@ optional arguments:
 optional:  OSM vechile  type
 
 examples:
-  g2o-stops.py --i ~/GTFS/bkk/ -o ./output_bkk/ -t node -v bus,tram,bkk
+  g2o-stops.py -i ~/GTFS/bkk/ -o ./output_bkk/ -t node -v bus,tram,bkk
 
-  g2o-stops.py --i ~/GTFS/mav/ -o ./output_mav/ -t node -v railway
+  g2o-stops.py -i ~/GTFS/mav/ -o ./output_mav/ -t node -v railway
