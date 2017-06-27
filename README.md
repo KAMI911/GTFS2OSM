@@ -42,7 +42,7 @@ optional arguments:
 
 -v VEHICLE, --vehicle VEHICLE
 
-    optional:  OSM vechile  type
+    optional:  OSM vehicle type
 
 examples:
   g2o-stops.py -i ~/GTFS/bkk/ -o ./output_bkk/ -t node -v bus,tram,bkk
