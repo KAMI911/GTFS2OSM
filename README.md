@@ -48,3 +48,8 @@ examples:
   g2o-stops.py -i ~/GTFS/bkk/ -o ./output_bkk/ -t node -v bus,tram,bkk
 
   g2o-stops.py -i ~/GTFS/mav/ -o ./output_mav/ -t node -v railway
+
+# Data sources
+
+* [Budapesti Közlekedési Központ](http://www.bkk.hu/gtfs/budapest_gtfs.zip)
+* [Magyar Állam Vasútak]()

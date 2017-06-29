@@ -118,31 +118,34 @@ if __name__ == "__main__":
                                                         'code') is not None else e.tag(
                                                         'ref'), e.tag('ref:bkv'), e.tag('ref:bkk'),
                                                     e.tag('ref:bkktelebusz'),
-                                                    e.tag('ref'), e.lat(), e.lon(), e.id(), e.tags()] for e in
+                                                    e.tag('ref'), e.lat(), e.lon(), e.id(), e.tags(), e.version()] for e
+                                                   in
                                                    osm_stops_query.elements()])
                         first_time = False
                     else:
                         logging.info('Aggregating addtitional OSM data from tag: {0} ...'.format(p))
-                        osm_stops_list = np.concatenate((osm_stops_list, np.array([[e.tag('name'),
-                                                                                    e.tag('ref:bkv') if e.tag(
-                                                                                        'ref:bkv') is not None else e.tag(
-                                                                                        'ref:bkk') if e.tag(
-                                                                                        'ref:bkk') is not None else e.tag(
-                                                                                        'ref:bkktelebusz') if e.tag(
-                                                                                        'ref:bkktelebusz') is not None else e.tag(
-                                                                                        'code') if e.tag(
-                                                                                        'code') is not None else e.tag(
-                                                                                        'ref'), e.tag('ref:bkv'),
-                                                                                    e.tag('ref:bkk'),
-                                                                                    e.tag('ref:bkktelebusz'),
-                                                                                    e.tag('ref'), e.lat(), e.lon(),
-                                                                                    e.id(),
-                                                                                    e.tags()] for
-                                                                                   e in osm_stops_query.elements()])),
-                                                        axis=0)
+                        if osm_stops_query.elements() != []:
+                            osm_stops_list = np.concatenate((osm_stops_list, np.array([[e.tag('name'),
+                                                                                        e.tag('ref:bkv') if e.tag(
+                                                                                            'ref:bkv') is not None else e.tag(
+                                                                                            'ref:bkk') if e.tag(
+                                                                                            'ref:bkk') is not None else e.tag(
+                                                                                            'ref:bkktelebusz') if e.tag(
+                                                                                            'ref:bkktelebusz') is not None else e.tag(
+                                                                                            'code') if e.tag(
+                                                                                            'code') is not None else e.tag(
+                                                                                            'ref'), e.tag('ref:bkv'),
+                                                                                        e.tag('ref:bkk'),
+                                                                                        e.tag('ref:bkktelebusz'),
+                                                                                        e.tag('ref'), e.lat(), e.lon(),
+                                                                                        e.id(),
+                                                                                        e.tags(), e.version()] for
+                                                                                       e in
+                                                                                       osm_stops_query.elements()])),
+                                                            axis=0)
         df_osm_stops = pd.DataFrame(osm_stops_list, columns=(
             'osm_name', 'osm_merged_refs', 'osm_ref_bkv', 'osm_ref_bkk', 'osm_ref_bkktelebusz', 'osm_ref',
-            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags'))
+            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags', 'osm_version'))
         logging.info('Number of elements after all OSM queries: {0}'.format(len(df_osm_stops)))
         df_osm_stops.drop_duplicates(subset='osm_id', keep='first', inplace=True)
         logging.info('Number of elements after removing duplicates based on OSMID: {0}'.format(len(df_osm_stops)))
@@ -170,11 +173,11 @@ if __name__ == "__main__":
         result2 = pd.merge(df_gtfs_stops, df_osm_stops, left_on='stop_id', right_on='osm_merged_refs', how='outer')
         save_csv_file(output_folder, 'merged_osm_gtfs_stops.csv', result2, 'merged list of all GTFS elements')
         del result2
-
         if 'bkk' in looking_for:
             df2 = df_gtfs_stops[~df_gtfs_stops['stop_id'].str.contains('CS')]
             result2 = pd.merge(df2, df_osm_stops, left_on='stop_id', right_on='osm_merged_refs', how='outer')
-            save_csv_file(output_folder, 'merged_osm_gtfs_stops_without_cs.csv', result2, 'merged list of all GTFS elements (without BKK CS)')
+            save_csv_file(output_folder, 'merged_osm_gtfs_stops_without_cs.csv', result2,
+                          'merged list of all GTFS elements (without BKK CS)')
             del result2, df2
 
         logging.info('Using new datasets')
@@ -195,6 +198,7 @@ if __name__ == "__main__":
             save_csv_file(output_folder, 'closest_stops_without_cs.csv', finding_closest(df1, df2),
                           'closest point list of all elements (without BKK CS)')
             del df1, df2
+
 
     except KeyboardInterrupt as e:
         logging.fatal('Processing is interrupted by the user.', exc_info=True)

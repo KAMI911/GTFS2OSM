@@ -33,7 +33,7 @@ class g2o_stops_commandline:
                                  help='optional:  OSM object type')
 
         self.parser.add_argument('-v', '--vehicle', type=str, dest='vehicle', action='append', required=False,
-                                 default=['bus', 'tram', 'bkk'],
+                                 default=[],
                                  help='optional:  OSM vehicle type')
 
     def parse(self):
@@ -57,4 +57,7 @@ class g2o_stops_commandline:
 
     @property
     def vehicle(self):
-        return self.args.vehicle
+        if self.args.vehicle == []:
+            return ['bus', 'tram', 'bkk']
+        else:
+            return self.args.vehicle
