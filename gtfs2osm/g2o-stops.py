@@ -82,6 +82,21 @@ def finding_closest(data1, data2):
     return data2
 
 
+def generate_xml(pd):
+    from lxml import etree
+    import lxml
+    osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
+    for index, row in pd.iterrows():
+        data = etree.SubElement(osm_xml_data, 'node', id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']), version='2'.format(row['osm_version']))
+        comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
+        data.append(comment)
+        row['osm_tags']['ref:mav'] = row['stop_id']
+        for k, v in row['osm_tags'].items():
+            tags = etree.SubElement(data, 'tag', k='{}'.format(k), v='{}'.format(v))
+            osm_xml_data.append(data)
+    return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+
+
 if __name__ == "__main__":
     try:
         init_log()
@@ -173,6 +188,12 @@ if __name__ == "__main__":
         result2 = pd.merge(df_gtfs_stops, df_osm_stops, left_on='stop_id', right_on='osm_merged_refs', how='outer')
         save_csv_file(output_folder, 'merged_osm_gtfs_stops.csv', result2, 'merged list of all GTFS elements')
         del result2
+        logging.info('Merging OSM and GTF datasets based on name')
+        result3 = pd.merge(df_gtfs_stops, df_osm_stops, left_on='stop_name', right_on='osm_name', how='inner')
+        save_csv_file(output_folder, 'name_merged_osm_gtfs_stops.csv', result3, 'merged list of all GTFS elements based on name')
+        with open('osm_same_name.osm', 'wb') as oxf:
+            oxf.write( generate_xml(result3))
+        del result3
         if 'bkk' in looking_for:
             df2 = df_gtfs_stops[~df_gtfs_stops['stop_id'].str.contains('CS')]
             result2 = pd.merge(df2, df_osm_stops, left_on='stop_id', right_on='osm_merged_refs', how='outer')
@@ -190,6 +211,9 @@ if __name__ == "__main__":
         df2_backup = df2
         save_csv_file(output_folder, 'closest_stops.csv', finding_closest(df1, df2),
                       'closest point list of all elements')
+        with open('osm_closest.osm', 'wb') as oxf:
+            oxf.write( generate_xml(df2))
+
         del df1, df2
         if 'bkk' in looking_for:
             df1 = df1_backup
