@@ -53,7 +53,7 @@ def closest_point(point, points):
 def closest_point_distance(point, points):
     # Find closest point from a list of points
     pt = points[distance.cdist([point], points).argmin()]
-    pt_dist = distance.euclidean(point, pt)
+    pt_dist = '{:10.8f}'.format(distance.euclidean(point, pt))
     return pt_dist
 
 
@@ -87,7 +87,7 @@ def generate_xml(pd):
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     for index, row in pd.iterrows():
-        data = etree.SubElement(osm_xml_data, 'node', id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']), version='2'.format(row['osm_version']))
+        data = etree.SubElement(osm_xml_data, 'node', action="modify", id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']))
         comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
         data.append(comment)
         row['osm_tags']['ref:mav'] = row['stop_id']
@@ -97,7 +97,7 @@ def generate_xml(pd):
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     try:
         init_log()
         logging.info('Starting {0} ...'.format(__program__))
@@ -133,7 +133,7 @@ if __name__ == "__main__":
                                                         'code') is not None else e.tag(
                                                         'ref'), e.tag('ref:bkv'), e.tag('ref:bkk'),
                                                     e.tag('ref:bkktelebusz'),
-                                                    e.tag('ref'), e.lat(), e.lon(), e.id(), e.tags(), e.version()] for e
+                                                    e.tag('ref'), e.lat(), e.lon(), e.id(), e.tags()] for e
                                                    in
                                                    osm_stops_query.elements()])
                         first_time = False
@@ -154,13 +154,13 @@ if __name__ == "__main__":
                                                                                         e.tag('ref:bkktelebusz'),
                                                                                         e.tag('ref'), e.lat(), e.lon(),
                                                                                         e.id(),
-                                                                                        e.tags(), e.version()] for
+                                                                                        e.tags()] for
                                                                                        e in
                                                                                        osm_stops_query.elements()])),
                                                             axis=0)
         df_osm_stops = pd.DataFrame(osm_stops_list, columns=(
             'osm_name', 'osm_merged_refs', 'osm_ref_bkv', 'osm_ref_bkk', 'osm_ref_bkktelebusz', 'osm_ref',
-            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags', 'osm_version'))
+            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags'))
         logging.info('Number of elements after all OSM queries: {0}'.format(len(df_osm_stops)))
         df_osm_stops.drop_duplicates(subset='osm_id', keep='first', inplace=True)
         logging.info('Number of elements after removing duplicates based on OSMID: {0}'.format(len(df_osm_stops)))
