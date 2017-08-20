@@ -90,7 +90,8 @@ def generate_xml(pd):
         data = etree.SubElement(osm_xml_data, 'node', action="modify", id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']))
         comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
         data.append(comment)
-        row['osm_tags']['ref:mav'] = row['stop_id']
+        if looking_for == 'railway':
+            row['osm_tags']['ref:mav'] = row['stop_id']
         for k, v in row['osm_tags'].items():
             tags = etree.SubElement(data, 'tag', k='{}'.format(k), v='{}'.format(v))
             osm_xml_data.append(data)
