@@ -90,7 +90,7 @@ def generate_xml(pd):
         data = etree.SubElement(osm_xml_data, 'node', action="modify", id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']))
         comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
         data.append(comment)
-        if looking_for == 'railway':
+        if 'railway' in looking_for:
             row['osm_tags']['ref:mav'] = row['stop_id']
         for k, v in row['osm_tags'].items():
             tags = etree.SubElement(data, 'tag', k='{}'.format(k), v='{}'.format(v))
@@ -192,7 +192,7 @@ if __name__ == '__main__':
         logging.info('Merging OSM and GTF datasets based on name')
         result3 = pd.merge(df_gtfs_stops, df_osm_stops, left_on='stop_name', right_on='osm_name', how='inner')
         save_csv_file(output_folder, 'name_merged_osm_gtfs_stops.csv', result3, 'merged list of all GTFS elements based on name')
-        with open('osm_same_name.osm', 'wb') as oxf:
+        with open(os.path.join(output_folder, 'osm_same_name.osm'), 'wb') as oxf:
             oxf.write( generate_xml(result3))
         del result3
         if 'bkk' in looking_for:
@@ -212,7 +212,7 @@ if __name__ == '__main__':
         df2_backup = df2
         save_csv_file(output_folder, 'closest_stops.csv', finding_closest(df1, df2),
                       'closest point list of all elements')
-        with open('osm_closest.osm', 'wb') as oxf:
+        with open(os.path.join(output_folder, 'osm_closest.osm'), 'wb') as oxf:
             oxf.write( generate_xml(df2))
 
         del df1, df2
