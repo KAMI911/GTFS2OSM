@@ -7,6 +7,7 @@ try:
     from OSMPythonTools import overpass
     from OSMPythonTools.nominatim import Nominatim
     from OSMPythonTools.overpass import overpassQueryBuilder
+    from OSMPythonTools.api import Api
     from scipy.spatial import distance
     from libs import g2o_stops_commandline
 
@@ -87,7 +88,7 @@ def generate_xml(pd):
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
     for index, row in pd.iterrows():
-        data = etree.SubElement(osm_xml_data, 'node', action="modify", id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']))
+        data = etree.SubElement(osm_xml_data, 'node', action='modify', id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']), user='{}'.format(row['osm_user']), timestamp='{}'.format(row['osm_timestamp']), uid='{}'.format(row['osm_uid']), changeset='{}'.format(row['osm_changeset']), version='{}'.format(row['osm_version']))
         comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
         data.append(comment)
         if 'railway' in looking_for:
@@ -134,7 +135,7 @@ if __name__ == '__main__':
                                                         'code') is not None else e.tag(
                                                         'ref'), e.tag('ref:bkv'), e.tag('ref:bkk'),
                                                     e.tag('ref:bkktelebusz'),
-                                                    e.tag('ref'), e.lat(), e.lon(), e.id(), e.tags()] for e
+                                                    e.tag('ref'), e.lat(), e.lon(), e.id(), e.tags(), None, None, None, None, None ] for e
                                                    in
                                                    osm_stops_query.elements()])
                         first_time = False
@@ -155,16 +156,34 @@ if __name__ == '__main__':
                                                                                         e.tag('ref:bkktelebusz'),
                                                                                         e.tag('ref'), e.lat(), e.lon(),
                                                                                         e.id(),
-                                                                                        e.tags()] for
+                                                                                        e.tags(), None, None, None, None, None ] for
                                                                                        e in
                                                                                        osm_stops_query.elements()])),
                                                             axis=0)
         df_osm_stops = pd.DataFrame(osm_stops_list, columns=(
             'osm_name', 'osm_merged_refs', 'osm_ref_bkv', 'osm_ref_bkk', 'osm_ref_bkktelebusz', 'osm_ref',
-            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags'))
+            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags', 'osm_version', 'osm_timestamp', 'osm_user', 'osm_uid', 'osm_changeset' ))
         logging.info('Number of elements after all OSM queries: {0}'.format(len(df_osm_stops)))
         df_osm_stops.drop_duplicates(subset='osm_id', keep='first', inplace=True)
         logging.info('Number of elements after removing duplicates based on OSMID: {0}'.format(len(df_osm_stops)))
+        api = Api()
+        for index, osm_data in df_osm_stops.iterrows():
+            node = api.query('node/{}'.format(osm_data['osm_id']))
+            try:
+                df_osm_stops.loc[[index], 'osm_timestamp'] = node.timestamp()
+                if node.uid() != None and node.user != None:
+                    df_osm_stops.loc[[index], 'osm_uid'] = node.uid()
+                    df_osm_stops.loc[[index], 'osm_user'] = node.user()
+                else:
+                    df_osm_stops.loc[[index], 'osm_uid'] = '4579407'
+                    df_osm_stops.loc[[index], 'osm_user'] = 'OSM_KAMI'
+                df_osm_stops.loc[[index], 'osm_changeset'] = node.changeset()
+                if node.version() != None:
+                    df_osm_stops.loc[[index], 'osm_version'] = node.version()
+                else:
+                    df_osm_stops.loc[[index], 'osm_version'] = '55'
+            except IOError as e:
+                logging.error('File error: {0}'.format(e), exc_info=True)
 
         try:
             os.mkdir(output_folder)
@@ -214,7 +233,6 @@ if __name__ == '__main__':
                       'closest point list of all elements')
         with open(os.path.join(output_folder, 'osm_closest.osm'), 'wb') as oxf:
             oxf.write( generate_xml(df2))
-
         del df1, df2
         if 'bkk' in looking_for:
             df1 = df1_backup
@@ -223,7 +241,6 @@ if __name__ == '__main__':
             save_csv_file(output_folder, 'closest_stops_without_cs.csv', finding_closest(df1, df2),
                           'closest point list of all elements (without BKK CS)')
             del df1, df2
-
 
     except KeyboardInterrupt as e:
         logging.fatal('Processing is interrupted by the user.', exc_info=True)
