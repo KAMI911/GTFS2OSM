@@ -60,32 +60,6 @@ if __name__ == '__main__':
         input_folder = cmd.input
         output_folder = cmd.output
         gtfs_data = os.path.join(input_folder, 'shapes.txt')
-        '''
-        df_osm_stops = pd.DataFrame(osm_stops_list, columns=(
-            'osm_name', 'osm_merged_refs', 'osm_ref_bkv', 'osm_ref_bkk', 'osm_ref_bkktelebusz', 'osm_ref',
-            'osm_lat', 'osm_lon', 'osm_id', 'osm_tags', 'osm_version', 'osm_timestamp', 'osm_user', 'osm_uid', 'osm_changeset' ))
-        logging.info('Number of elements after all OSM queries: {0}'.format(len(df_osm_stops)))
-        df_osm_stops.drop_duplicates(subset='osm_id', keep='first', inplace=True)
-        logging.info('Number of elements after removing duplicates based on OSMID: {0}'.format(len(df_osm_stops)))
-        api = Api()
-        for index, osm_data in df_osm_stops.iterrows():
-            node = api.query('node/{}'.format(osm_data['osm_id']))
-            try:
-                df_osm_stops.loc[[index], 'osm_timestamp'] = node.timestamp()
-                if node.uid() != None and node.user != None:
-                    df_osm_stops.loc[[index], 'osm_uid'] = node.uid()
-                    df_osm_stops.loc[[index], 'osm_user'] = node.user()
-                else:
-                    df_osm_stops.loc[[index], 'osm_uid'] = '4579407'
-                    df_osm_stops.loc[[index], 'osm_user'] = 'OSM_KAMI'
-                df_osm_stops.loc[[index], 'osm_changeset'] = node.changeset()
-                if node.version() != None:
-                    df_osm_stops.loc[[index], 'osm_version'] = node.version()
-                else:
-                    df_osm_stops.loc[[index], 'osm_version'] = '55'
-            except IOError as e:
-                logging.error('File error: {0}'.format(e), exc_info=True)
-        '''
         try:
             os.mkdir(output_folder)
         except FileExistsError as e:
