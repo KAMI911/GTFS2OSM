@@ -4,20 +4,18 @@ try:
     import logging, logging.config, os
     import numpy as np
     import pandas as pd
-    from OSMPythonTools import overpass
-    from OSMPythonTools.nominatim import Nominatim
-    from OSMPythonTools.overpass import overpassQueryBuilder
     from OSMPythonTools.api import Api
     from scipy.spatial import distance
     from libs import g2o_stops_commandline
-
-
+    from gtfs2osm.libs.osm import get_area_id, query_overpass
+    from gtfs2osm.libs.file_output import save_csv_file, generate_stop_xml
+    from gtfs2osm.libs.gis import finding_closest
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
 __program__ = 'gtfs2osm-stops'
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 QUERY = {'bus': ['"highway"="bus_stop"'], 'tram': ['"railway"="tram_stop"'],
          'railway': ['"railway"="station"', '"railway"="halt"', '"railway"="platform"'],
@@ -28,75 +26,6 @@ QUERY = {'bus': ['"highway"="bus_stop"'], 'tram': ['"railway"="tram_stop"'],
 
 def init_log():
     logging.config.fileConfig('log.conf')
-
-
-# Query Nominatim
-def get_area_id(area):
-    # Query Nominatom
-    nominatim = Nominatim()
-    return nominatim.query(area).areaId()
-
-
-# Query Overpass
-def query_overpass(area_id, query_statement, element_type='node'):
-    # Query Overpass based on area
-    global overpass
-    query = overpassQueryBuilder(area=area_id, elementType=element_type, selector=query_statement)
-    return overpass.query(query)
-
-
-def closest_point(point, points):
-    # Find closest point from a list of points
-    pt = points[distance.cdist([point], points).argmin()]
-    return pt
-
-
-def closest_point_distance(point, points):
-    # Find closest point from a list of points
-    pt = points[distance.cdist([point], points).argmin()]
-    pt_dist = '{:10.8f}'.format(distance.euclidean(point, pt))
-    return pt_dist
-
-
-def match_value(df, col1, x, col2):
-    # Match value x from col1 row to value in col2
-    return df[df[col1] == x][col2].values[0]
-
-
-def save_csv_file(path, file, data, message):
-    # Save file to CSV file
-    logging.info('Saving {0} to file: {1}'.format(message, file))
-    res = data.to_csv(os.path.join(path, file))
-    logging.info('The {0} was sucessfully saved'.format(file))
-
-
-def finding_closest(data1, data2):
-    # Add stop_id and stop_name to the closest point
-    logging.info('Finding closest coordinates')
-    data2['closest'] = [closest_point(x, list(data1['point'])) for x in data2['point']]
-    logging.info('Calculating closest coordinates distances')
-    data2['dist_closest'] = [closest_point_distance(x, list(data1['point'])) for x in data2['point']]
-    logging.info('Selecting matching stop_id')
-    data2['stop_id'] = [match_value(data1, 'point', x, 'stop_id') for x in data2['closest']]
-    logging.info('Selecting matching name')
-    data2['stop_name'] = [match_value(data1, 'point', x, 'stop_name') for x in data2['closest']]
-    return data2
-
-
-def generate_xml(pd):
-    from lxml import etree
-    import lxml
-    osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
-    for index, row in pd.iterrows():
-        data = etree.SubElement(osm_xml_data, 'node', action='modify', id='{}'.format(row['osm_id']), lat='{}'.format(row['osm_lat']), lon='{}'.format(row['osm_lon']), user='{}'.format(row['osm_user']), timestamp='{}'.format(row['osm_timestamp']), uid='{}'.format(row['osm_uid']), changeset='{}'.format(row['osm_changeset']), version='{}'.format(row['osm_version']))
-        comment = etree.Comment(' Stop name: {0}, ID: {1} '.format(row['stop_name'], row['osm_merged_refs']))
-        data.append(comment)
-        if 'railway' in looking_for:
-            row['osm_tags']['ref:mav'] = row['stop_id']
-        for k, v in row['osm_tags'].items():
-            tags = etree.SubElement(data, 'tag', k='{}'.format(k), v='{}'.format(v))
-            osm_xml_data.append(data)
-    return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
 
 if __name__ == '__main__':
@@ -116,7 +45,6 @@ if __name__ == '__main__':
         # Query Nominatim
         local_area_id = get_area_id(city)
         logging.info('Query Nominatim for area: {0}'.format(city))
-        overpass = overpass.Overpass()
 
         first_time = True
         # Query overpass
@@ -212,7 +140,7 @@ if __name__ == '__main__':
         result3 = pd.merge(df_gtfs_stops, df_osm_stops, left_on='stop_name', right_on='osm_name', how='inner')
         save_csv_file(output_folder, 'name_merged_osm_gtfs_stops.csv', result3, 'merged list of all GTFS elements based on name')
         with open(os.path.join(output_folder, 'osm_same_name.osm'), 'wb') as oxf:
-            oxf.write( generate_xml(result3))
+            oxf.write(generate_stop_xml(result3, looking_for))
         del result3
         if 'bkk' in looking_for:
             df2 = df_gtfs_stops[~df_gtfs_stops['stop_id'].str.contains('CS')]
@@ -232,7 +160,7 @@ if __name__ == '__main__':
         save_csv_file(output_folder, 'closest_stops.csv', finding_closest(df1, df2),
                       'closest point list of all elements')
         with open(os.path.join(output_folder, 'osm_closest.osm'), 'wb') as oxf:
-            oxf.write( generate_xml(df2))
+            oxf.write(generate_stop_xml(df2, looking_for))
         del df1, df2
         if 'bkk' in looking_for:
             df1 = df1_backup
