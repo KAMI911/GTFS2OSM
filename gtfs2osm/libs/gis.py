@@ -1,7 +1,10 @@
-import logging
 
-from scipy.spatial import distance
-
+try:
+    import logging
+    from scipy.spatial import distance
+except ImportError as err:
+    print('Error {0} import module: {1}'.format(__name__, err))
+    exit(128)
 
 def closest_point(point, points):
     # Find closest point from a list of points

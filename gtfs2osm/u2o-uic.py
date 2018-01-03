@@ -4,14 +4,11 @@ try:
     import logging, logging.config, os
     import numpy as np
     import pandas as pd
-    from OSMPythonTools import overpass
-    from OSMPythonTools.nominatim import Nominatim
-    from OSMPythonTools.overpass import overpassQueryBuilder
     from OSMPythonTools.api import Api
     from scipy.spatial import distance
     from libs import g2o_stops_commandline
-    from gtfs2osm.libs.file_output import save_csv_file, generate_uic_xml
     from gtfs2osm.libs.osm import get_area_id, query_overpass
+    from gtfs2osm.libs.file_output import save_csv_file, generate_uic_xml
     from gtfs2osm.libs.gis import match_value
 
 except ImportError as err:
@@ -45,7 +42,6 @@ if __name__ == '__main__':
         # Query Nominatim
         local_area_id = get_area_id(city)
         logging.info('Query Nominatim for area: {0}'.format(city))
-        overpass = overpass.Overpass()
 
         first_time = True
         # Query overpass
@@ -115,7 +111,7 @@ if __name__ == '__main__':
         result3 = pd.merge(df_gtfs_stops, df_osm_stops, left_on='Név', right_on='osm_name', how='inner')
         save_csv_file(output_folder, 'name_merged_osm_uic.csv', result3, 'merged list of all UIC elements based on name')
         with open(os.path.join(output_folder, 'osm_uic.osm'), 'wb') as oxf:
-            oxf.write(generate_uic_xml(result3))
+            oxf.write(generate_uic_xml(result3, looking_for))
         del result3
 
     except KeyboardInterrupt as e:

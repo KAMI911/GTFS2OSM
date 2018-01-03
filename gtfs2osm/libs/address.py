@@ -1,4 +1,9 @@
-import re
+
+try:
+    import re
+except ImportError as err:
+    print('Error {0} import module: {1}'.format(__name__, err))
+    exit(128)
 
 # Patterns for re
 PATTERN_CITY = re.compile('\s?[XVI]{1,5}[.:,]{0,3}\s*$')

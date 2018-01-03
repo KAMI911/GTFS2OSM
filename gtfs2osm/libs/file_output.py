@@ -1,5 +1,20 @@
-import logging
-import os
+
+try:
+    import logging
+    import os
+except ImportError as err:
+    print('Error {0} import module: {1}'.format(__name__, err))
+    exit(128)
+
+
+def ascii_numcoder(text):
+    output = ''
+    for i in text:
+        if i in range(0,10,1):
+            output += i
+        else:
+            output += str(ord(i))
+    return output
 
 
 def save_csv_file(path, file, data, message):
@@ -8,7 +23,7 @@ def save_csv_file(path, file, data, message):
     res = data.to_csv(os.path.join(path, file))
     logging.info('The {0} was sucessfully saved'.format(file))
 
-def generate_uic_xml(pd):
+def generate_uic_xml(pd, looking_for):
     from lxml import etree
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
@@ -25,7 +40,7 @@ def generate_uic_xml(pd):
     return lxml.etree.tostring(osm_xml_data, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
 
-def generate_stop_xml(pd):
+def generate_stop_xml(pd, looking_for):
     from lxml import etree
     import lxml
     osm_xml_data = etree.Element('osm', version='0.6', generator='JOSM')
