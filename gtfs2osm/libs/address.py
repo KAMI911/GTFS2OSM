@@ -12,10 +12,7 @@ PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNO
 PATTERN_STREET = re.compile(
     '\s*.*\s*(útgyűrű|útfél|sétány|lejtő|liget|aluljáró|lejtó|park|ltp\.|ltp|sarok|szél|sor|körönd|köz|tér|tere|utca|körút|lakótelep|krt\.|krt|út|rét|sgt.|u\.|u){1}',
     re.UNICODE | re.IGNORECASE)
-#PATTERN_CONSCRIPTIONNUMBER = re.compile('\s*(hrsz[.:]{0,2}){0,1}\s*[0-9]{4,5}(\/[0-9]{1,3}){0,1}[.]{0,1}\s*(hrsz[.]{0,1}){0,1}', re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER = re.compile('(\s*[0-9]{2,5}(\/[0-9]{1,3}){0,1}[.]{0,1}\s*hrsz[s.]{0,1}|hrsz[.:]{0,2}\s*[0-9]{2,5}(\/[0-9]{1,3}){0,1}[.]{0,1})', re.IGNORECASE)
-PATTERN_CONSCRIPTIONNUMBER_NUMBER = re.compile('[0-9]{2,5}(\/[0-9]{1,3}){0,1}', re.IGNORECASE)
-
+PATTERN_CONSCRIPTIONNUMBER = re.compile('(hrsz[.:]{0,2}\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}|\s*([0-9]{2,6}(\/[0-9]{1,3}){0,1})[.]{0,1}\s*hrsz[s.]{0,1})', re.IGNORECASE)
 
 def clean_javascript_variable(clearable, removable):
     """Remove javascript variable notation from the selected JSON variable.
@@ -61,12 +58,9 @@ def extract_street_housenumber_better(clearable):
     data = clearable.split('(')[0]
     cn_match = PATTERN_CONSCRIPTIONNUMBER.search(data)
     if cn_match is not None:
-        conscriptionnumber = cn_match.group(0)
-        cnn_length = len(conscriptionnumber)
-        print(conscriptionnumber)
-        cnn_match = PATTERN_CONSCRIPTIONNUMBER_NUMBER.search(conscriptionnumber)
-        conscriptionnumber = cnn_match.group(0)
-        print('LUCKYYYYYYYYYYY {}'.format(conscriptionnumber))
+        conscriptionnumber = cn_match.group(2) if cn_match.group(2) is not None else cn_match.group(4) if cn_match.group(4) is not None else None
+        cnn_length = len(cn_match.group(0))
+        print('LUCKYYYYYYYYYYY {} -> {}'.format(data, conscriptionnumber))
     else:
         conscriptionnumber = None
         cnn_length = None
