@@ -9,6 +9,7 @@ from bs4 import BeautifulSoup
 from libs import address
 from data_structure import Base, City, POI_address
 
+PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 def download_soup(link):
     page = requests.get(link, verify=False)
@@ -238,10 +239,13 @@ class POI_Base:
                 poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                 city = address.clean_city(poi_data['city'])
                 postcode = poi_data['zipCode']
+                branch = poi_data['name'].split('(')[0].strip()
+                ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
+                ref = ref_match.group(1).strip() if ref_match is not None else None
                 try:
                     col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
-                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=poi_data['name'], poi_addr_city = col,
+                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=branch, poi_ref=ref, poi_addr_city = col,
                                   poi_postcode=postcode, poi_shop=shop, poi_city=city,
                                   poi_addr_street=street, poi_addr_housenumber=housenumber,
                                   poi_website=poi_data['pageUrl'], poi_conscriptionnumber=conscriptionnumber, original = poi_data['address'])
