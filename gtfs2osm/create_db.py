@@ -80,9 +80,9 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Tesco Expressz', poi_shop='convenience', poi_url_base='https://www.tesco.hu')
-            get_or_create(self.session, POI_common, poi_name='Tesco Extra', poi_shop='supermarket', poi_url_base='https://www.tesco.hu')
-            get_or_create(self.session, POI_common, poi_name='Tesco', poi_shop='supermarket', poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco Expressz', poi_tags='convenience', poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco Extra', poi_tags='supermarket', poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco', poi_tags='supermarket', poi_url_base='https://www.tesco.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -110,13 +110,10 @@ class POI_Base:
                 poi_data[0] = tesco_replace.sub('Expressz', poi_data[0])
                 if 'xpres' in poi_data[0]:
                     name = 'Tesco Expressz'
-                    shop = 'convenience'
                 elif 'xtra' in poi_data[0]:
                     name = 'Tesco Extra'
-                    shop = 'supermarket'
                 else:
                     name = 'Tesco'
-                    shop = 'supermarket'
                 poi_data[0] = poi_data[0].replace('TESCO', 'Tesco')
                 poi_data[0] = poi_data[0].replace('Bp.', 'Budapest')
                 city = address.clean_city(poi_data[2].split(',')[0])
@@ -126,7 +123,7 @@ class POI_Base:
                         City.city_post_code == postcode).first()
                     common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
                     get_or_create(self.session, POI_address, poi_name=name, poi_branch=poi_data[0], poi_addr_city = city_col.city_id,
-                                  poi_postcode=postcode, poi_shop=shop, poi_city=city, poi_addr_street=street,
+                                  poi_postcode=postcode, poi_city=city, poi_addr_street=street,
                                   poi_addr_housenumber=housenumber, poi_website=poi_data[4], poi_conscriptionnumber=conscriptionnumber, original=poi_data[3], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
@@ -139,7 +136,7 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Aldi', poi_shop='supermarket', poi_url_base='https://www.aldi.hu')
+            get_or_create(self.session, POI_common, poi_name='Aldi', poi_tags='supermarket', poi_url_base='https://www.aldi.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -163,8 +160,7 @@ class POI_Base:
                     city_col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
                     common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
-                    get_or_create(self.session, POI_address, poi_name=name, poi_postcode=postcode, poi_addr_city = city_col,
-                                  poi_shop='supermarket', poi_city=city,
+                    get_or_create(self.session, POI_address, poi_name=name, poi_postcode=postcode, poi_addr_city = city_col, poi_city=city,
                                   poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original= poi_data[2], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
@@ -177,7 +173,7 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='CBA', poi_shop='convenience', poi_url_base='https://www.cba.hu')
+            get_or_create(self.session, POI_common, poi_name='CBA', poi_tags='convenience', poi_url_base='https://www.cba.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -204,7 +200,7 @@ class POI_Base:
                         City.city_post_code == postcode).first()
                     common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
                     get_or_create(self.session, POI_address, poi_name=name, poi_branch=poi_data['P_NAME'], poi_addr_city = city_col,
-                                  poi_postcode=postcode, poi_shop='convenience', poi_city=city,
+                                  poi_postcode=postcode, poi_city=city,
                                   poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original = poi_data['A_CIM'], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
@@ -217,7 +213,7 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Rossmann', poi_shop='chemist', poi_url_base='https://www.rossmann.hu')
+            get_or_create(self.session, POI_common, poi_name='Rossmann', poi_tags='chemist', poi_url_base='https://www.rossmann.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -245,7 +241,7 @@ class POI_Base:
                         City.city_post_code == postcode).first()
                     common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
                     get_or_create(self.session, POI_address, poi_name=name, poi_branch=None, poi_addr_city = city_col,
-                                  poi_postcode=postcode, poi_shop='chemist', poi_city=city,
+                                  poi_postcode=postcode, poi_city=city,
                                   poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original = poi_data['addresses'][0]['address'], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
@@ -258,11 +254,11 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Spar Expressz', poi_shop='convenience',
+            get_or_create(self.session, POI_common, poi_name='Spar Expressz', poi_tags='convenience',
                           poi_url_base='https://www.spar.hu')
-            get_or_create(self.session, POI_common, poi_name='Interspar', poi_shop='supermarket',
+            get_or_create(self.session, POI_common, poi_name='Interspar', poi_tags='supermarket',
                           poi_url_base='https://www.spar.hu')
-            get_or_create(self.session, POI_common, poi_name='Spar', poi_shop='supermarket',
+            get_or_create(self.session, POI_common, poi_name='Spar', poi_tags='supermarket',
                           poi_url_base='https://www.spar.hu')
             self.session.commit()
         except Exception as e:
@@ -275,16 +271,12 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['address'])
                 if 'xpres' in poi_data['name']:
                     name = 'Spar Expressz'
-                    shop = 'convenience'
                 elif 'INTER' in poi_data['name']:
                     name = 'Interspar'
-                    shop = 'supermarket'
                 elif 'market' in poi_data['name']:
                     name = 'Spar'
-                    shop = 'supermarket'
                 else:
                     name = 'Spar'
-                    shop = 'supermarket'
                 poi_data['name'] = poi_data['name'].replace('INTERSPAR', 'Interspar')
                 poi_data['name'] = poi_data['name'].replace('SPAR', 'Spar')
                 city = address.clean_city(poi_data['city'])
@@ -297,7 +289,7 @@ class POI_Base:
                         City.city_post_code == postcode).first()
                     common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
                     get_or_create(self.session, POI_address, poi_name=name, poi_branch=branch, poi_ref=ref, poi_addr_city = city_col,
-                                  poi_postcode=postcode, poi_shop=shop, poi_city=city,
+                                  poi_postcode=postcode, poi_city=city,
                                   poi_addr_street=street, poi_addr_housenumber=housenumber,
                                   poi_website=poi_data['pageUrl'], poi_conscriptionnumber=conscriptionnumber, original = poi_data['address'], poi_common_id=common_col)
                     self.session.commit()
