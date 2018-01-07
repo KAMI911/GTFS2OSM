@@ -1,13 +1,16 @@
-import requests
-import sqlalchemy
-import sqlalchemy.orm
-from sqlalchemy.sql import select
-import pandas as pd
-import re
-import json
-from bs4 import BeautifulSoup
-from libs import address
-from data_structure import Base, City, POI_address, POI_common
+try:
+    import requests
+    import sqlalchemy
+    import sqlalchemy.orm
+    import pandas as pd
+    import re
+    import json
+    from bs4 import BeautifulSoup
+    from gtfs2osm.libs import address
+    from gtfs2osm.dao.data_structure import Base, City, POI_address, POI_common
+except ImportError as err:
+    print('Error {0} import module: {1}'.format(__name__, err))
+    exit(128)
 
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 

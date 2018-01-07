@@ -1,7 +1,12 @@
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
-from sqlalchemy import Integer, Unicode
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import synonym, relationship
+
+try:
+    from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
+    from sqlalchemy import Integer, Unicode
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import synonym, relationship
+except ImportError as err:
+    print('Error {0} import module: {1}'.format(__name__, err))
+    exit(128)
 
 Base = declarative_base()
 
