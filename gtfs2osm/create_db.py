@@ -7,7 +7,7 @@ import re
 import json
 from bs4 import BeautifulSoup
 from libs import address
-from data_structure import Base, City, POI_address
+from data_structure import Base, City, POI_address, POI_common
 
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
@@ -79,6 +79,16 @@ class POI_Base:
         link_base = 'http://tesco.hu/aruhazak/nyitvatartas/'
         soup = download_soup('{}'.format(link_base))
         data = []
+        try:
+            get_or_create(self.session, POI_common, poi_name='Tesco Expressz', poi_shop='convenience', poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco Extra', poi_shop='supermarket', poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco', poi_shop='supermarket', poi_url_base='https://www.tesco.hu')
+            self.session.commit()
+        except Exception as e:
+            print(e)
+        finally:
+            self.session.close()
+
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'tescoce-table'})
@@ -112,11 +122,12 @@ class POI_Base:
                 city = address.clean_city(poi_data[2].split(',')[0])
                 postcode = poi_data[1].strip()
                 try:
-                    col = self.session.query(City.city_id).filter(City.city_name == city).filter(
+                    city_col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
-                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=poi_data[0], poi_addr_city = col.city_id,
+                    common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
+                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=poi_data[0], poi_addr_city = city_col.city_id,
                                   poi_postcode=postcode, poi_shop=shop, poi_city=city, poi_addr_street=street,
-                                  poi_addr_housenumber=housenumber, poi_website=poi_data[4], poi_conscriptionnumber=conscriptionnumber, original=poi_data[3])
+                                  poi_addr_housenumber=housenumber, poi_website=poi_data[4], poi_conscriptionnumber=conscriptionnumber, original=poi_data[3], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
                     print(e)
@@ -127,6 +138,13 @@ class POI_Base:
         link_base = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/'
         soup = download_soup('{}'.format(link_base))
         data = []
+        try:
+            get_or_create(self.session, POI_common, poi_name='Aldi', poi_shop='supermarket', poi_url_base='https://www.aldi.hu')
+            self.session.commit()
+        except Exception as e:
+            print(e)
+        finally:
+            self.session.close()
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'contenttable is-header-top'})
@@ -140,12 +158,14 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data[2])
                 city = address.clean_city(poi_data[1])
                 postcode = poi_data[0].strip()
+                name = 'Aldi'
                 try:
-                    col = self.session.query(City.city_id).filter(City.city_name == city).filter(
+                    city_col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
-                    get_or_create(self.session, POI_address, poi_name='Aldi', poi_postcode=postcode, poi_addr_city = col,
+                    common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
+                    get_or_create(self.session, POI_address, poi_name=name, poi_postcode=postcode, poi_addr_city = city_col,
                                   poi_shop='supermarket', poi_city=city,
-                                  poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original= poi_data[2])
+                                  poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original= poi_data[2], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
                     print(e)
@@ -156,6 +176,13 @@ class POI_Base:
         link_base = 'http://www.cba.hu/uzletlista/'
         soup = download_soup('{}'.format(link_base))
         data = []
+        try:
+            get_or_create(self.session, POI_common, poi_name='CBA', poi_shop='convenience', poi_url_base='https://www.cba.hu')
+            self.session.commit()
+        except Exception as e:
+            print(e)
+        finally:
+            self.session.close
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*boltok_nyers.*')
@@ -171,12 +198,14 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['A_CIM'])
                 city = address.clean_city(poi_data['A_VAROS'])
                 postcode = poi_data['A_IRSZ'].strip()
+                name = 'CBA'
                 try:
-                    col = self.session.query(City.city_id).filter(City.city_name == city).filter(
+                    city_col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
-                    get_or_create(self.session, POI_address, poi_name='CBA', poi_branch=poi_data['P_NAME'], poi_addr_city = col,
+                    common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
+                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=poi_data['P_NAME'], poi_addr_city = city_col,
                                   poi_postcode=postcode, poi_shop='convenience', poi_city=city,
-                                  poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original = poi_data['A_CIM'])
+                                  poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original = poi_data['A_CIM'], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
                     print(e)
@@ -187,6 +216,13 @@ class POI_Base:
         link_base = 'https://www.rossmann.hu/uzletkereso'
         soup = download_soup('{}'.format(link_base))
         data = []
+        try:
+            get_or_create(self.session, POI_common, poi_name='Rossmann', poi_shop='chemist', poi_url_base='https://www.rossmann.hu')
+            self.session.commit()
+        except Exception as e:
+            print(e)
+        finally:
+            self.session.close
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*places.*')
@@ -203,12 +239,14 @@ class POI_Base:
                     poi_data['addresses'][0]['address'])
                 city = address.clean_city(poi_data['city'])
                 postcode = poi_data['addresses'][0]['zip'].strip()
+                name = 'Rossmann'
                 try:
-                    col = self.session.query(City.city_id).filter(City.city_name == city).filter(
+                    city_col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
-                    get_or_create(self.session, POI_address, poi_name='Rossmann', poi_branch=None, poi_addr_city = col,
+                    common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
+                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=None, poi_addr_city = city_col,
                                   poi_postcode=postcode, poi_shop='chemist', poi_city=city,
-                                  poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original = poi_data['addresses'][0]['address'])
+                                  poi_addr_street=street, poi_addr_housenumber=housenumber, poi_website=None, poi_conscriptionnumber=conscriptionnumber, original = poi_data['addresses'][0]['address'], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
                     print(e)
@@ -219,6 +257,18 @@ class POI_Base:
         link_base = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
         soup = download_soup('{}'.format(link_base))
         data = []
+        try:
+            get_or_create(self.session, POI_common, poi_name='Spar Expressz', poi_shop='convenience',
+                          poi_url_base='https://www.spar.hu')
+            get_or_create(self.session, POI_common, poi_name='Interspar', poi_shop='supermarket',
+                          poi_url_base='https://www.spar.hu')
+            get_or_create(self.session, POI_common, poi_name='Spar', poi_shop='supermarket',
+                          poi_url_base='https://www.spar.hu')
+            self.session.commit()
+        except Exception as e:
+            print(e)
+        finally:
+            self.session.close
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text:
@@ -243,12 +293,13 @@ class POI_Base:
                 ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
                 ref = ref_match.group(1).strip() if ref_match is not None else None
                 try:
-                    col = self.session.query(City.city_id).filter(City.city_name == city).filter(
+                    city_col = self.session.query(City.city_id).filter(City.city_name == city).filter(
                         City.city_post_code == postcode).first()
-                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=branch, poi_ref=ref, poi_addr_city = col,
+                    common_col = self.session.query(POI_common.pc_id).filter(POI_common.poi_name == name).first()
+                    get_or_create(self.session, POI_address, poi_name=name, poi_branch=branch, poi_ref=ref, poi_addr_city = city_col,
                                   poi_postcode=postcode, poi_shop=shop, poi_city=city,
                                   poi_addr_street=street, poi_addr_housenumber=housenumber,
-                                  poi_website=poi_data['pageUrl'], poi_conscriptionnumber=conscriptionnumber, original = poi_data['address'])
+                                  poi_website=poi_data['pageUrl'], poi_conscriptionnumber=conscriptionnumber, original = poi_data['address'], poi_common_id=common_col)
                     self.session.commit()
                 except Exception as e:
                     print(e)

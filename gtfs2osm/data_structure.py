@@ -10,11 +10,10 @@ class POI_address(Base):
     _plural_name_ = 'poi_address'
     pa_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pa_id')
-    #poi_osm_id = Column(Integer, nullable=False, unique=True, index=True)
     poi_osm_id = Column(Integer, unique=True, index=True)
+    poi_common_id = Column(Integer, ForeignKey('poi_common.pc_id'), index=True)
     poi_name = Column(Unicode(64), nullable=False, index=True)
     poi_branch = Column(Unicode(64), nullable=True, index=True)
-    poi_shop = Column(Unicode, nullable=False, index=True)
     poi_addr_city = Column(Integer, ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
     poi_city = Column(Unicode(64))
@@ -27,6 +26,20 @@ class POI_address(Base):
 
     def __repr__(self):
         return '<POI address {}: {}>'.format(self.poi_id, self.poi_name)
+
+
+class POI_common(Base):
+    __tablename__ = 'poi_common'
+    _plural_name_ = 'poi_common'
+    pc_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('pc_id')
+    poi_name = Column(Unicode(64), unique=True, nullable=False, index=True)
+    poi_shop = Column(Unicode(16), nullable=False, index=True)
+    poi_url_base = Column(Unicode(32))
+
+    def __repr__(self):
+        return '<POI common {}: {}>'.format(self.poi_id, self.poi_name)
+
 
 class City(Base):
     __tablename__ = 'city'
