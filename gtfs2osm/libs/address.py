@@ -1,6 +1,7 @@
 
 try:
     import re
+    import logging
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -64,18 +65,18 @@ def extract_street_housenumber_better(clearable):
     if cn_match_1 is not None:
         conscriptionnumber = cn_match_1.group(2) if cn_match_1.group(2) is not None else None
         cnn_length = len(cn_match_1.group(0))
-        print('LUCKYYYYYYYYYYY {} -> {}'.format(data, conscriptionnumber))
+        logging.debug('Matching conscription number with method 1: {} from {}'.format(conscriptionnumber, clearable))
     elif cn_match_2 is not None:
         conscriptionnumber = cn_match_2.group(2) if cn_match_2.group(2) is not None else None
         cnn_length = len(cn_match_2.group(0))
-        print('LUCKYYYYYYYYYYY {} -> {}'.format(data, conscriptionnumber))
+        logging.debug('Matching conscription number with method 2: {} from {}'.format(conscriptionnumber, clearable))
     else:
         conscriptionnumber = None
         cnn_length = None
     # Try to match street
     street_match = PATTERN_STREET.search(data)
     if street_match is None:
-        print('jaj: {}'.format(clearable))
+        logging.debug('Non matching street: {}'.format(clearable))
         street, housenumber = None, None
     else:
         # Normalize street
@@ -93,7 +94,6 @@ def extract_street_housenumber_better(clearable):
         # Search for house number
         if cnn_length is not None:
             hn_match = PATTERN_HOUSENUMBER.search(data[street_length:-cnn_length])
-            print(data[street_length:-cnn_length])
         else:
             hn_match = PATTERN_HOUSENUMBER.search(data[street_length:])
         if hn_match is not None:

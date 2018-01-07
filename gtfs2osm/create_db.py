@@ -5,6 +5,7 @@ try:
     import pandas as pd
     import re
     import json
+    import logging, logging.config
     from bs4 import BeautifulSoup
     from gtfs2osm.libs import address
     from gtfs2osm.dao.data_structure import Base, City, POI_address, POI_common
@@ -12,7 +13,17 @@ except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
+
+__program__ = 'create_db'
+__version__ = '0.2.0'
+
+
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
+
+
+def init_log():
+    logging.config.fileConfig('log.conf')
+
 
 def download_soup(link):
     page = requests.get(link, verify=False)
@@ -303,12 +314,20 @@ class POI_Base:
 
 
 def main():
+    init_log()
+    logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
+    logging.info('Importing cities ...'.format())
     db.add_city()
+    logging.info('Importing {} stores ...'.format('Tesco'))
     db.add_tesco()
+    logging.info('Importing {} stores ...'.format('Aldi'))
     db.add_aldi()
+    logging.info('Importing {} stores ...'.format('CBA'))
     db.add_cba()
+    logging.info('Importing {} stores ...'.format('Spar'))
     db.add_spar()
+    logging.info('Importing {} stores ...'.format('Rossmann'))
     db.add_rossmann()
 
 
