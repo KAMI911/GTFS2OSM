@@ -83,9 +83,9 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Tesco Expressz', poi_tags='convenience', poi_url_base='https://www.tesco.hu')
-            get_or_create(self.session, POI_common, poi_name='Tesco Extra', poi_tags='supermarket', poi_url_base='https://www.tesco.hu')
-            get_or_create(self.session, POI_common, poi_name='Tesco', poi_tags='supermarket', poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco Expressz', poi_tags="{'shop': 'convenience'}", poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco Extra', poi_tags="{'shop': 'supermarket'}", poi_url_base='https://www.tesco.hu')
+            get_or_create(self.session, POI_common, poi_name='Tesco', poi_tags="{'shop': 'supermarket'}", poi_url_base='https://www.tesco.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -139,7 +139,7 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Aldi', poi_tags='supermarket', poi_url_base='https://www.aldi.hu')
+            get_or_create(self.session, POI_common, poi_name='Aldi', poi_tags="{'shop': 'supermarket'}", poi_url_base='https://www.aldi.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -176,7 +176,7 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='CBA', poi_tags='convenience', poi_url_base='https://www.cba.hu')
+            get_or_create(self.session, POI_common, poi_name='CBA', poi_tags="{'shop': 'convenience'}", poi_url_base='https://www.cba.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -216,7 +216,7 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Rossmann', poi_tags='chemist', poi_url_base='https://www.rossmann.hu')
+            get_or_create(self.session, POI_common, poi_name='Rossmann', poi_tags="{'shop': 'chemist'}", poi_url_base='https://www.rossmann.hu')
             self.session.commit()
         except Exception as e:
             print(e)
@@ -257,11 +257,11 @@ class POI_Base:
         soup = download_soup('{}'.format(link_base))
         data = []
         try:
-            get_or_create(self.session, POI_common, poi_name='Spar Expressz', poi_tags='convenience',
+            get_or_create(self.session, POI_common, poi_name='Spar Expressz', poi_tags="{'shop': 'convenience'}",
                           poi_url_base='https://www.spar.hu')
-            get_or_create(self.session, POI_common, poi_name='Interspar', poi_tags='supermarket',
+            get_or_create(self.session, POI_common, poi_name='Interspar', poi_tags="{'shop': 'supermarket'}",
                           poi_url_base='https://www.spar.hu')
-            get_or_create(self.session, POI_common, poi_name='Spar', poi_tags='supermarket',
+            get_or_create(self.session, POI_common, poi_name='Spar', poi_tags="{'shop': 'supermarket'}",
                           poi_url_base='https://www.spar.hu')
             self.session.commit()
         except Exception as e:

@@ -39,7 +39,7 @@ class POI_common(Base):
     pc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pc_id')
     poi_name = Column(Unicode(64), unique=True, nullable=False, index=True)
-    poi_tags = Column(Unicode(16), nullable=False, index=True)
+    poi_tags = Column(Unicode(256), nullable=False, index=True)
     poi_url_base = Column(Unicode(32))
 
     def __repr__(self):
