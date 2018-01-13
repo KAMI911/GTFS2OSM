@@ -214,7 +214,7 @@ class POI_Base:
 
 
     def add_rossmann_types(self):
-        data = [{'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist'}", 'poi_url_base': 'https://www.rossmann.hu'}]
+        data = [{'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann'}", 'poi_url_base': 'https://www.rossmann.hu'}]
         insert_type(self.session, data)
 
 
