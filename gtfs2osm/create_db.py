@@ -270,12 +270,32 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
 
 
+    def add_kh_types(self):
+        data = [{'poi_name': 'K&H bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.kh.hu'},
+                {'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
+        insert_type(self.session, data)
+
+
+    def add_kh(self, link_base):
+        if link_base:
+            with open(link_base, 'r') as f:
+                text = json.load(f)
+                for poi_data in text['results']:
+                    first_element = next(iter(poi_data))
+                    name = 'K&H bank'
+                    print(poi_data[first_element])
+                    postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
+                    insert(self.session, poi_city=city, poi_name=name,
+                           poi_postcode=postcode, poi_branch=None,
+                           poi_website=None, original=poi_data[first_element]['address'], poi_addr_street=street,
+                           poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
+
 
 def main():
     init_log()
     logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
-
+    '''
     logging.info('Importing cities ...'.format())
     db.add_city('data/Iranyitoszam-Internet.XLS')
 
@@ -298,7 +318,10 @@ def main():
     logging.info('Importing {} stores ...'.format('Rossmann'))
     db.add_rossmann_types()
     db.add_rossmann('https://www.rossmann.hu/uzletkereso')
-
+    '''
+    logging.info('Importing {} stores ...'.format('KH Bank'))
+    db.add_kh_types()
+    db.add_kh(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'))
 
 if __name__ == '__main__':
     main()
