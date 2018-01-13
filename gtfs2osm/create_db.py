@@ -91,8 +91,8 @@ class POI_Base:
         self.session = Session()
         Base.metadata.create_all(self.engine)
 
-    def add_city(self):
-        xl = pd.ExcelFile('data/Iranyitoszam-Internet.XLS')
+    def add_city(self, link_base):
+        xl = pd.ExcelFile(link_base)
         df = xl.parse("Települések")
         for index, city_data in df.iterrows():
             try:
@@ -128,8 +128,7 @@ class POI_Base:
         insert_type(self.session, data)
 
 
-    def add_tesco(self):
-        link_base = 'http://tesco.hu/aruhazak/nyitvatartas/'
+    def add_tesco(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'tesco.html'))
         data = []
         if soup != None:
@@ -169,8 +168,7 @@ class POI_Base:
         insert_type(self.session, data)
 
 
-    def add_aldi(self):
-        link_base = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/'
+    def add_aldi(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'aldi.html'))
         data = []
         if soup != None:
@@ -193,8 +191,7 @@ class POI_Base:
         insert_type(self.session, data)
 
 
-    def add_cba(self):
-        link_base = 'http://www.cba.hu/uzletlista/'
+    def add_cba(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'cba.html'))
         data = []
         if soup != None:
@@ -221,8 +218,7 @@ class POI_Base:
         insert_type(self.session, data)
 
 
-    def add_rossmann(self):
-        link_base = 'https://www.rossmann.hu/uzletkereso'
+    def add_rossmann(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'rossmann.html'))
         data = []
         if soup != None:
@@ -251,8 +247,7 @@ class POI_Base:
         insert_type(self.session, data)
 
 
-    def add_spar(self):
-        link_base = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
+    def add_spar(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'spar.json'))
         data = []
         if soup != None:
@@ -279,23 +274,29 @@ def main():
     init_log()
     logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
+
     logging.info('Importing cities ...'.format())
-    db.add_city()
+    db.add_city('data/Iranyitoszam-Internet.XLS')
+
     logging.info('Importing {} stores ...'.format('Tesco'))
     db.add_tesco_types()
-    db.add_tesco()
+    db.add_tesco('http://tesco.hu/aruhazak/nyitvatartas/')
+
     logging.info('Importing {} stores ...'.format('Aldi'))
     db.add_aldi_types()
-    db.add_aldi()
+    db.add_aldi('https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/')
+
     logging.info('Importing {} stores ...'.format('CBA'))
     db.add_cba_types()
-    db.add_cba()
+    db.add_cba('http://www.cba.hu/uzletlista/')
+
     logging.info('Importing {} stores ...'.format('Spar'))
     db.add_spar_types()
-    db.add_spar()
+    db.add_spar('https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU')
+
     logging.info('Importing {} stores ...'.format('Rossmann'))
     db.add_rossmann_types()
-    db.add_rossmann()
+    db.add_rossmann('https://www.rossmann.hu/uzletkereso')
 
 
 if __name__ == '__main__':
