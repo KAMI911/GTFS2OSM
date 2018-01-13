@@ -40,6 +40,15 @@ def get_or_create(session, model, **kwargs):
         session.commit()
         return instance
 
+
+def insert_type(session, type_data):
+    try:
+        for i in type_data:
+            get_or_create(session, POI_common, poi_name=i['poi_name'], poi_tags=i['poi_tags'], poi_url_base=i['poi_url_base'])
+    except Exception as e:
+        print(e)
+
+
 def insert(session, **kwargs):
     try:
         city_col = session.query(City.city_id).filter(City.city_name == kwargs['poi_city']).filter(
@@ -102,20 +111,18 @@ class POI_Base:
                 finally:
                     self.session.close()
 
+
+    def add_tesco_types(self):
+        data = [{'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience'}", 'poi_url_base': 'https://www.tesco.hu'},
+                {'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.tesco.hu'},
+                {'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.tesco.hu'}]
+        insert_type(self.session, data)
+
+
     def add_tesco(self):
         link_base = 'http://tesco.hu/aruhazak/nyitvatartas/'
         soup = download_soup('{}'.format(link_base))
         data = []
-        try:
-            get_or_create(self.session, POI_common, poi_name='Tesco Expressz', poi_tags="{'shop': 'convenience'}", poi_url_base='https://www.tesco.hu')
-            get_or_create(self.session, POI_common, poi_name='Tesco Extra', poi_tags="{'shop': 'supermarket'}", poi_url_base='https://www.tesco.hu')
-            get_or_create(self.session, POI_common, poi_name='Tesco', poi_tags="{'shop': 'supermarket'}", poi_url_base='https://www.tesco.hu')
-            self.session.commit()
-        except Exception as e:
-            print(e)
-        finally:
-            self.session.close()
-
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'tescoce-table'})
@@ -147,17 +154,16 @@ class POI_Base:
 
                 insert(self.session, poi_city = address.clean_city(poi_data[2].split(',')[0]), poi_name = name, poi_postcode = poi_data[1].strip(), poi_branch = poi_data[0], poi_website = poi_data[4], original = poi_data[3], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
+
+    def add_aldi_types(self):
+        data = [{'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.aldi.hu'}]
+        insert_type(self.session, data)
+
+
     def add_aldi(self):
         link_base = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/'
         soup = download_soup('{}'.format(link_base))
         data = []
-        try:
-            get_or_create(self.session, POI_common, poi_name='Aldi', poi_tags="{'shop': 'supermarket'}", poi_url_base='https://www.aldi.hu')
-            self.session.commit()
-        except Exception as e:
-            print(e)
-        finally:
-            self.session.close()
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             table = soup.find('table', attrs={'class': 'contenttable is-header-top'})
@@ -173,17 +179,15 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data[1]), poi_name = name, poi_postcode =  poi_data[0].strip(), poi_branch = None, poi_website = None, original = poi_data[2], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
+    def add_cba_types(self):
+        data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience'}", 'poi_url_base': 'https://www.cba.hu'}]
+        insert_type(self.session, data)
+
+
     def add_cba(self):
         link_base = 'http://www.cba.hu/uzletlista/'
         soup = download_soup('{}'.format(link_base))
         data = []
-        try:
-            get_or_create(self.session, POI_common, poi_name='CBA', poi_tags="{'shop': 'convenience'}", poi_url_base='https://www.cba.hu')
-            self.session.commit()
-        except Exception as e:
-            print(e)
-        finally:
-            self.session.close
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*boltok_nyers.*')
@@ -203,17 +207,15 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['A_VAROS']), poi_name = name, poi_postcode =  poi_data['A_IRSZ'].strip(), poi_branch = poi_data['P_NAME'], poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
+    def add_rossmann_types(self):
+        data = [{'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist'}", 'poi_url_base': 'https://www.rossmann.hu'}]
+        insert_type(self.session, data)
+
+
     def add_rossmann(self):
         link_base = 'https://www.rossmann.hu/uzletkereso'
         soup = download_soup('{}'.format(link_base))
         data = []
-        try:
-            get_or_create(self.session, POI_common, poi_name='Rossmann', poi_tags="{'shop': 'chemist'}", poi_url_base='https://www.rossmann.hu')
-            self.session.commit()
-        except Exception as e:
-            print(e)
-        finally:
-            self.session.close
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
             pattern = re.compile('^\s*var\s*places.*')
@@ -233,22 +235,17 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
+    def add_spar_types(self):
+        data = [{'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience'}", 'poi_url_base': 'https://www.spar.hu'},
+                {'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.spar.hu'},
+                {'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.spar.hu'}]
+        insert_type(self.session, data)
+
+
     def add_spar(self):
         link_base = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
         soup = download_soup('{}'.format(link_base))
         data = []
-        try:
-            get_or_create(self.session, POI_common, poi_name='Spar Expressz', poi_tags="{'shop': 'convenience'}",
-                          poi_url_base='https://www.spar.hu')
-            get_or_create(self.session, POI_common, poi_name='Interspar', poi_tags="{'shop': 'supermarket'}",
-                          poi_url_base='https://www.spar.hu')
-            get_or_create(self.session, POI_common, poi_name='Spar', poi_tags="{'shop': 'supermarket'}",
-                          poi_url_base='https://www.spar.hu')
-            self.session.commit()
-        except Exception as e:
-            print(e)
-        finally:
-            self.session.close
         if soup != None:
             text = json.loads(soup.get_text())
             for poi_data in text:
@@ -276,14 +273,19 @@ def main():
     logging.info('Importing cities ...'.format())
     db.add_city()
     logging.info('Importing {} stores ...'.format('Tesco'))
+    db.add_tesco_types()
     db.add_tesco()
     logging.info('Importing {} stores ...'.format('Aldi'))
+    db.add_aldi_types()
     db.add_aldi()
     logging.info('Importing {} stores ...'.format('CBA'))
+    db.add_cba_types()
     db.add_cba()
     logging.info('Importing {} stores ...'.format('Spar'))
+    db.add_spar_types()
     db.add_spar()
     logging.info('Importing {} stores ...'.format('Rossmann'))
+    db.add_rossmann_types()
     db.add_rossmann()
 
 
