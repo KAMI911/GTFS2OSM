@@ -122,9 +122,9 @@ class POI_Base:
 
 
     def add_tesco_types(self):
-        data = [{'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience'}", 'poi_url_base': 'https://www.tesco.hu'},
-                {'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.tesco.hu'},
-                {'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.tesco.hu'}]
+        data = [{'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
+                {'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
+                {'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'}]
         insert_type(self.session, data)
 
 
@@ -164,7 +164,7 @@ class POI_Base:
 
 
     def add_aldi_types(self):
-        data = [{'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.aldi.hu'}]
+        data = [{'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi'}", 'poi_url_base': 'https://www.aldi.hu'}]
         insert_type(self.session, data)
 
 
@@ -187,7 +187,7 @@ class POI_Base:
 
 
     def add_cba_types(self):
-        data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience'}", 'poi_url_base': 'https://www.cba.hu'}]
+        data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'}]
         insert_type(self.session, data)
 
 
@@ -268,6 +268,7 @@ class POI_Base:
                 ref = ref_match.group(1).strip() if ref_match is not None else None
 
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
+
 
 
 def main():
