@@ -7,6 +7,7 @@ except ImportError as err:
     exit(128)
 
 # Patterns for re
+PATTERN_POSTCODE_CITY = re.compile('^((\d){4})([.\s]{0,2})([a-zA-ZáÁéÉíÍóÓúÚüÜöÖőŐűŰ]{3,40})')
 PATTERN_CITY = re.compile('\s?[XVI]{1,5}[.:,]{0,3}\s*$')
 PATTERN_JS_2 = re.compile('\s*;\s*$')
 PATTERN_HOUSENUMBER = re.compile('[0-9]{1,3}(\/[A-z]{1}|\-[0-9]{1,3}|)', re.IGNORECASE)
@@ -50,6 +51,20 @@ def extract_street_housenumber(clearable):
     street = street.replace(' krt.', ' körút')
     return street, housenumber
 
+
+def extract_all_address(clearable):
+    clearable = clearable.strip()
+    pc_match = PATTERN_POSTCODE_CITY.search(clearable)
+    if pc_match is not None:
+        postcode = pc_match.group(1)
+    else:
+        postcode = None
+    if pc_match is not None:
+        city = pc_match.group(4)
+    else:
+        city = None
+    street, housenumber, conscriptionnumber = extract_street_housenumber_better(clearable.split(',')[1].strip())
+    return (postcode, city, street, housenumber, conscriptionnumber)
 
 def extract_street_housenumber_better(clearable):
     '''Try to separate street and house number from a Hungarian style address string
