@@ -4,6 +4,7 @@ try:
     import sqlalchemy.orm
     import pandas as pd
     import re
+    import os
     import json
     import logging, logging.config
     from bs4 import BeautifulSoup
@@ -18,6 +19,7 @@ __program__ = 'create_db'
 __version__ = '0.2.0'
 
 
+DOWNLOAD_CACHE = 'cache_url'
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
 
 
@@ -28,6 +30,13 @@ def init_log():
 def download_soup(link):
     page = requests.get(link, verify=False)
     return BeautifulSoup(page.content, 'html.parser') if page.status_code == 200 else None
+
+
+def save_downloaded_soup(link, file):
+    soup = download_soup(link)
+    with open(file, mode="w", encoding="utf8") as code:
+        code.write(str(soup.prettify()))
+    return soup
 
 
 def get_or_create(session, model, **kwargs):
@@ -121,7 +130,7 @@ class POI_Base:
 
     def add_tesco(self):
         link_base = 'http://tesco.hu/aruhazak/nyitvatartas/'
-        soup = download_soup('{}'.format(link_base))
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'tesco.html'))
         data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
@@ -162,7 +171,7 @@ class POI_Base:
 
     def add_aldi(self):
         link_base = 'https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/'
-        soup = download_soup('{}'.format(link_base))
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'aldi.html'))
         data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
@@ -186,7 +195,7 @@ class POI_Base:
 
     def add_cba(self):
         link_base = 'http://www.cba.hu/uzletlista/'
-        soup = download_soup('{}'.format(link_base))
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'cba.html'))
         data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
@@ -214,7 +223,7 @@ class POI_Base:
 
     def add_rossmann(self):
         link_base = 'https://www.rossmann.hu/uzletkereso'
-        soup = download_soup('{}'.format(link_base))
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'rossmann.html'))
         data = []
         if soup != None:
             # parse the html using beautiful soap and store in variable `soup`
@@ -244,7 +253,7 @@ class POI_Base:
 
     def add_spar(self):
         link_base = 'https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU'
-        soup = download_soup('{}'.format(link_base))
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'spar.json'))
         data = []
         if soup != None:
             text = json.loads(soup.get_text())
