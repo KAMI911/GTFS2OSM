@@ -91,6 +91,11 @@ class POI_Base:
         self.session = Session()
         Base.metadata.create_all(self.engine)
 
+
+    def add_poi_types(self, data):
+        insert_type(self.session, data)
+
+
     def add_city(self, link_base):
         xl = pd.ExcelFile(link_base)
         df = xl.parse("Települések")
@@ -119,13 +124,6 @@ class POI_Base:
                     print(e)
                 finally:
                     self.session.close()
-
-
-    def add_tesco_types(self):
-        data = [{'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
-                {'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
-                {'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'}]
-        insert_type(self.session, data)
 
 
     def add_tesco(self, link_base):
@@ -163,11 +161,6 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data[2].split(',')[0]), poi_name = name, poi_postcode = poi_data[1].strip(), poi_branch = poi_data[0], poi_website = poi_data[4], original = poi_data[3], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
-    def add_aldi_types(self):
-        data = [{'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi'}", 'poi_url_base': 'https://www.aldi.hu'}]
-        insert_type(self.session, data)
-
-
     def add_aldi(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'aldi.html'))
         data = []
@@ -184,11 +177,6 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data[2])
                 name = 'Aldi'
                 insert(self.session, poi_city = address.clean_city(poi_data[1]), poi_name = name, poi_postcode =  poi_data[0].strip(), poi_branch = None, poi_website = None, original = poi_data[2], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
-
-
-    def add_cba_types(self):
-        data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'}]
-        insert_type(self.session, data)
 
 
     def add_cba(self, link_base):
@@ -240,13 +228,6 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
-    def add_spar_types(self):
-        data = [{'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience'}", 'poi_url_base': 'https://www.spar.hu'},
-                {'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.spar.hu'},
-                {'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket'}", 'poi_url_base': 'https://www.spar.hu'}]
-        insert_type(self.session, data)
-
-
     def add_spar(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'spar.json'))
         data = []
@@ -270,20 +251,13 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
 
 
-    def add_kh_types(self):
-        data = [{'poi_name': 'K&H bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.kh.hu'},
-                {'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
-        insert_type(self.session, data)
-
-
-    def add_kh(self, link_base):
+    def add_kh_bank(self, link_base):
         if link_base:
             with open(link_base, 'r') as f:
                 text = json.load(f)
                 for poi_data in text['results']:
                     first_element = next(iter(poi_data))
                     name = 'K&H bank'
-                    print(poi_data[first_element])
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
                     insert(self.session, poi_city=city, poi_name=name,
                            poi_postcode=postcode, poi_branch=None,
@@ -295,33 +269,42 @@ def main():
     init_log()
     logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
-    '''
     logging.info('Importing cities ...'.format())
     db.add_city('data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
-    db.add_tesco_types()
+    data = [{'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'}]
+    db.add_poi_types(data)
     db.add_tesco('http://tesco.hu/aruhazak/nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('Aldi'))
-    db.add_aldi_types()
+    data = [{'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi'}", 'poi_url_base': 'https://www.aldi.hu'}]
+    db.add_poi_types(data)
     db.add_aldi('https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('CBA'))
-    db.add_cba_types()
+    data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'}]
+    db.add_poi_types(data)
     db.add_cba('http://www.cba.hu/uzletlista/')
 
     logging.info('Importing {} stores ...'.format('Spar'))
-    db.add_spar_types()
+    data = [{'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
+            {'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
+            {'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'}]
+    db.add_poi_types(data)
     db.add_spar('https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU')
 
     logging.info('Importing {} stores ...'.format('Rossmann'))
-    db.add_rossmann_types()
+    db.add_poi_types(data)
     db.add_rossmann('https://www.rossmann.hu/uzletkereso')
-    '''
+
     logging.info('Importing {} stores ...'.format('KH Bank'))
-    db.add_kh_types()
-    db.add_kh(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'))
+    data = [{'poi_name': 'K&H bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.kh.hu'},
+            {'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
+    db.add_poi_types(data)
+    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'))
 
 if __name__ == '__main__':
     main()
