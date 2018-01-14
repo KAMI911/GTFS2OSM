@@ -251,13 +251,12 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
 
 
-    def add_kh_bank(self, link_base):
+    def add_kh_bank(self, link_base, name = 'K&H bank'):
         if link_base:
             with open(link_base, 'r') as f:
                 text = json.load(f)
                 for poi_data in text['results']:
                     first_element = next(iter(poi_data))
-                    name = 'K&H bank'
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
                     insert(self.session, poi_city=city, poi_name=name,
                            poi_postcode=postcode, poi_branch=None,
@@ -304,7 +303,9 @@ def main():
     data = [{'poi_name': 'K&H bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.kh.hu'},
             {'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
     db.add_poi_types(data)
-    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'))
+    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'), 'K&H bank')
+    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
+
 
 if __name__ == '__main__':
     main()
