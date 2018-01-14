@@ -201,11 +201,6 @@ class POI_Base:
                 insert(self.session, poi_city = address.clean_city(poi_data['A_VAROS']), poi_name = name, poi_postcode =  poi_data['A_IRSZ'].strip(), poi_branch = poi_data['P_NAME'], poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
-    def add_rossmann_types(self):
-        data = [{'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann'}", 'poi_url_base': 'https://www.rossmann.hu'}]
-        insert_type(self.session, data)
-
-
     def add_rossmann(self, link_base):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'rossmann.html'))
         data = []
@@ -296,6 +291,7 @@ def main():
     db.add_spar('https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU')
 
     logging.info('Importing {} stores ...'.format('Rossmann'))
+    data = [{'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann'}", 'poi_url_base': 'https://www.rossmann.hu'}]
     db.add_poi_types(data)
     db.add_rossmann('https://www.rossmann.hu/uzletkereso')
 
