@@ -97,6 +97,7 @@ def extract_street_housenumber_better(clearable):
         # Normalize street
         street = street_match.group(0)
         street_length = len(street)
+        street = street.replace('Petőfi S.', 'Petőfi Sándor')
         street = street.replace('Szt.István', 'Szent István')
         street = street.replace('Kossuth L.', 'Kossuth Lajos')
         street = street.replace('Kossuth L.u.', 'Kossuth Lajos utca')
