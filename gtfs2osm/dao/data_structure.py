@@ -30,7 +30,7 @@ class POI_address(Base):
     poi_ref = Column(Unicode(16))
 
     def __repr__(self):
-        return '<POI address {}: {}>'.format(self.poi_id, self.poi_name)
+        return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
 
 
 class POI_common(Base):
