@@ -10,6 +10,7 @@ try:
     from bs4 import BeautifulSoup
     from gtfs2osm.libs import address
     from gtfs2osm.dao.data_structure import Base, City, POI_address, POI_common
+    from gtfs2osm.libs.file_output import save_csv_file
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
@@ -18,6 +19,8 @@ except ImportError as err:
 __program__ = 'create_db'
 __version__ = '0.2.0'
 
+
+output_folder = '.'
 
 DOWNLOAD_CACHE = 'cache_url'
 PATTERN_SPAR_REF = re.compile('\((.*?)\)')
@@ -48,7 +51,6 @@ def get_or_create(session, model, **kwargs):
         session.add(instance)
         session.commit()
         return instance
-
 
 def insert_type(session, type_data):
     try:
@@ -259,6 +261,10 @@ class POI_Base:
                            poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
 
 
+    def query_all_pd(self, table):
+        return pd.read_sql_table(table, self.engine)
+
+
 def main():
     init_log()
     logging.info('Starting {0} ...'.format(__program__))
@@ -301,7 +307,11 @@ def main():
     db.add_poi_types(data)
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'), 'K&H bank')
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
-
+    logging.info('Exporting CSV files ...')
+    targets = ['poi_address', 'poi_common']
+    for i in targets:
+        data = db.query_all_pd(i)
+        save_csv_file(output_folder, '{}.csv'.format(i), data, i)
 
 if __name__ == '__main__':
     main()
