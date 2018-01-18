@@ -199,8 +199,9 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['A_CIM'])
                 city = address.clean_city(poi_data['A_VAROS'])
                 postcode = poi_data['A_IRSZ'].strip()
-                name = 'CBA'
-                insert(self.session, poi_city = address.clean_city(poi_data['A_VAROS']), poi_name = name, poi_postcode =  poi_data['A_IRSZ'].strip(), poi_branch = poi_data['P_NAME'], poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                branch = poi_data['P_NAME'].strip()
+                name = 'Príma' if 'Príma' in branch else 'CBA'
+                insert(self.session, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_rossmann(self, link_base):
@@ -285,7 +286,8 @@ def main():
     db.add_aldi('https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('CBA'))
-    data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'}]
+    data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'},
+            {'poi_name': 'Príma', 'poi_tags': "{'shop': 'convenience', 'brand': 'Príma'}", 'poi_url_base': 'https://www.prima.hu'}]
     db.add_poi_types(data)
     db.add_cba('http://www.cba.hu/uzletlista/')
 
