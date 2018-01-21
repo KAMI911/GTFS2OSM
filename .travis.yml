@@ -14,5 +14,6 @@ install:
 
 # command to run test
 script:
+  - ls -latr
   - python gtfs2osm/test_test_create_db.py
 
