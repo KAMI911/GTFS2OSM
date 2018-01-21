@@ -1,4 +1,3 @@
-
 try:
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
     from sqlalchemy import Integer, Unicode, DateTime, func
@@ -9,6 +8,7 @@ except ImportError as err:
     exit(128)
 
 Base = declarative_base()
+
 
 class POI_address(Base):
     __tablename__ = 'poi_address'
@@ -31,9 +31,9 @@ class POI_address(Base):
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_deleted = Column(DateTime(True))
 
-    common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id', backref='poi_address')
+    common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
+                          backref='poi_address')
     city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
-
 
     def __repr__(self):
         return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
@@ -60,7 +60,7 @@ class City(Base):
     city_name = Column(Unicode)
     city_post_code = Column(Integer)
 
-    __table_args__ = (UniqueConstraint('city_name', 'city_post_code', name='uc_city_name_post_code'), )
+    __table_args__ = (UniqueConstraint('city_name', 'city_post_code', name='uc_city_name_post_code'),)
 
     def __repr__(self):
         return '<City {}: {} ({})>'.format(self.city_id, self.city_name, self.city_post_code)
