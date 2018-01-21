@@ -16,10 +16,10 @@ class POI_address(Base):
     pa_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pa_id')
     poi_osm_id = Column(Integer, unique=True, index=True)
-    poi_common_id = Column(Integer, ForeignKey('poi_common.pc_id'), index=True)
+    poi_common_id = Column(ForeignKey('poi_common.pc_id'), index=True)
     poi_name = Column(Unicode(64), nullable=False, index=True)
     poi_branch = Column(Unicode(64), nullable=True, index=True)
-    poi_addr_city = Column(Integer, ForeignKey('city.city_id'), index=True)
+    poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
     poi_city = Column(Unicode(64))
     poi_addr_street = Column(Unicode(64))
@@ -30,6 +30,9 @@ class POI_address(Base):
     poi_ref = Column(Unicode(16))
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_deleted = Column(DateTime(True))
+
+    common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id', backref='poi_address')
+    city = relationship('City', primaryjoin='POI_address.poi_addr_city == City.city_id', backref='poi_address')
 
 
     def __repr__(self):
