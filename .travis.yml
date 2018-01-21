@@ -14,5 +14,5 @@ install:
 
 # command to run test
 script:
-  - python gtfs2osm/test_lactransformer.py
+  - python gtfs2osm/test_test_create_db.py
 
