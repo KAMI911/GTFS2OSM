@@ -1,7 +1,7 @@
 
 try:
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
-    from sqlalchemy import Integer, Unicode
+    from sqlalchemy import Integer, Unicode, DateTime, func
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import synonym, relationship
 except ImportError as err:
@@ -28,6 +28,9 @@ class POI_address(Base):
     original = Column(Unicode(128))
     poi_website = Column(Unicode(128))
     poi_ref = Column(Unicode(16))
+    poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
+    poi_deleted = Column(DateTime(True))
+
 
     def __repr__(self):
         return '<POI address {}: {}>'.format(self.pa_id, self.poi_name)
