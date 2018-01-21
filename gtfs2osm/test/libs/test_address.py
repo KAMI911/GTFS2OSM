@@ -14,7 +14,9 @@ class TestAddressResolver(unittest.TestCase):
              'conscriptionnumber': '2934/5'},
             {'original': 'Szérűskert utca 018910/23. hrsz. (Köles utca 1.)', 'street': 'Szérűskert utca',
              'housenumber': None,
-             'conscriptionnumber': '018910/23'}]
+             'conscriptionnumber': '018910/23'},
+            {'original': 'Palotai út 6. (Fehér Palota Üzletközpont)', 'street': 'Palotai út',
+             'housenumber': '6', 'conscriptionnumber': None} ]
 
 
     def test_extract_street_housenumber_better(self):
