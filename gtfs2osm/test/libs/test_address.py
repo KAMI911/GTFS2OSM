@@ -16,8 +16,7 @@ class TestAddressResolver(unittest.TestCase):
              'housenumber': None,
              'conscriptionnumber': '018910/23'},
             {'original': 'Palotai út 6. (Fehér Palota Üzletközpont)', 'street': 'Palotai út',
-             'housenumber': '6', 'conscriptionnumber': None} ]
-
+             'housenumber': '6', 'conscriptionnumber': None}]
 
     def test_extract_street_housenumber_better(self):
         for i in self.addresses:
@@ -31,17 +30,19 @@ class TestAddressResolver(unittest.TestCase):
             with self.subTest():
                 self.assertEqual(conscriptionnumber, c)
 
+
 class TestFullAddressResolver(unittest.TestCase):
     def setUp(self):
         self.addresses = [
-            {'original': '9737 Bük, Petőfi utca 63. Fszt. 1.', 'postcode': '9737', 'city': 'Bük', 'street': 'Petőfi utca', 'housenumber': '63',
+            {'original': '9737 Bük, Petőfi utca 63. Fszt. 1.', 'postcode': '9737', 'city': 'Bük',
+             'street': 'Petőfi utca', 'housenumber': '63',
              'conscriptionnumber': None}]
-
 
     def test_extract_all_address(self):
         for i in self.addresses:
-            original, postcode, city, street, housenumber, conscriptionnumber = i['original'], i['postcode'], i['city'], i['street'], i['housenumber'], i[
-                'conscriptionnumber']
+            original, postcode, city, street, housenumber, conscriptionnumber = i['original'], i['postcode'], i['city'], \
+                                                                                i['street'], i['housenumber'], i[
+                                                                                    'conscriptionnumber']
             a, b, c, d, e = extract_all_address(original)
             with self.subTest():
                 self.assertEqual(postcode, a)
