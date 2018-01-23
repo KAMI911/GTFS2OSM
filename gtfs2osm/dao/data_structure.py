@@ -28,6 +28,13 @@ class POI_address(Base):
     original = Column(Unicode(128))
     poi_website = Column(Unicode(128))
     poi_ref = Column(Unicode(16))
+    poi_opening_hours_mo = Column(Unicode(64))
+    poi_opening_hours_tu = Column(Unicode(64))
+    poi_opening_hours_we = Column(Unicode(64))
+    poi_opening_hours_th = Column(Unicode(64))
+    poi_opening_hours_fr = Column(Unicode(64))
+    poi_opening_hours_sa = Column(Unicode(64))
+    poi_opening_hours_su = Column(Unicode(64))
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_deleted = Column(DateTime(True))
 
