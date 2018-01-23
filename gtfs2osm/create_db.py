@@ -261,6 +261,8 @@ class POI_Base:
                            poi_website=None, original=poi_data[first_element]['address'], poi_addr_street=street,
                            poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
 
+    def add_cib_bank(self, link_base):
+        return True
 
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
@@ -309,6 +311,14 @@ def main():
     db.add_poi_types(data)
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'), 'K&H bank')
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
+    '''
+    logging.info('Importing {} stores ...'.format('CIB Bank'))
+    data = [{'poi_name': 'CIB bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'},
+            {'poi_name': 'CIB', 'poi_tags': "{'amenity': 'atm', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'}]
+    db.add_poi_types(data)
+    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'cib_bank.html'), 'CIB bank')
+    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'cib_atm.html'), 'CIB')
+    '''
     logging.info('Exporting CSV files ...')
     targets = ['poi_address', 'poi_common']
     for i in targets:
