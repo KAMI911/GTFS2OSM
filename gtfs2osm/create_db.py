@@ -264,6 +264,24 @@ class POI_Base:
     def add_cib_bank(self, link_base):
         return True
 
+
+    def add_benu(self, link_base):
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, 'benu.json'))
+        data = []
+        if soup != None:
+            text = json.loads(soup.get_text())
+            for poi_data in text:
+                street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['street'])
+                if 'BENU Gyógyszertár' not in poi_data['title']:
+                    name = poi_data['title'].strip()
+                    branch = None
+                else:
+                    name = 'Benu gyógyszertár'
+                    branch = poi_data['title'].strip()
+                website = poi_data['description'].strip() if poi_data['description'] is not None else None
+                insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+
+
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
 
@@ -310,7 +328,13 @@ def main():
             {'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
     db.add_poi_types(data)
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'), 'K&H bank')
-    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
+    # db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
+
+    logging.info('Importing {} stores ...'.format('BENU'))
+    data = [{'poi_name': 'Benu gyógyszertár', 'poi_tags':"{'amenity': 'pharmacy', 'dispensing': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
+    db.add_poi_types(data)
+    db.add_benu('https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1')
+
     '''
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     data = [{'poi_name': 'CIB bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'},

@@ -26,7 +26,7 @@ class POI_address(Base):
     poi_addr_housenumber = Column(Unicode(16))
     poi_conscriptionnumber = Column(Unicode(16))
     original = Column(Unicode(128))
-    poi_website = Column(Unicode(128))
+    poi_website = Column(Unicode(256))
     poi_ref = Column(Unicode(16))
     poi_opening_hours_mo = Column(Unicode(64))
     poi_opening_hours_tu = Column(Unicode(64))
