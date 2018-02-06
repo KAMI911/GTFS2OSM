@@ -281,6 +281,32 @@ class POI_Base:
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
                 insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
+    def add_posta(self, link_base, filename):
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
+        data = []
+        if soup != None:
+            text = json.loads(soup.get_text())
+            for poi_data in text['items']:
+                if poi_data['type'] == 'posta':
+                    if 'mobilposta' in poi_data['name']:
+                        name = 'Mobilposta'
+                    else:
+                        name = 'Posta'
+                elif poi_data['type'] == 'csekkautomata':
+                    name = 'Posta csekkautomata'
+                elif poi_data['type'] == 'postaautomata':
+                    name = 'Posta csomagautomata'
+                elif poi_data['type'] == 'postapoint':
+                    name = 'PostaPont'
+                else:
+                    logging.error('Non existing Posta type.')
+                postcode = poi_data['zipCode'].strip()
+                street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['address'])
+                city = address.clean_city(poi_data['city'])
+                branch = poi_data['name']
+                website = None
+                insert(self.session, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+
 
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
@@ -291,6 +317,7 @@ def main():
     logging.info('Starting {0} ...'.format(__program__))
     db = POI_Base('postgresql://poi:poitest@localhost:5432')
     logging.info('Importing cities ...'.format())
+
     db.add_city('data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
@@ -335,13 +362,25 @@ def main():
     db.add_poi_types(data)
     db.add_benu('https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1')
 
+    logging.info('Importing {} stores ...'.format('Magyar Posta'))
+    data = [{'poi_name': 'Posta', 'poi_tags':"{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_name': 'Posta csekkautomata', 'poi_tags': "{'amenity': 'vending_machine', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_name': 'Posta csomagautomata', 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_name': 'PostaPont', 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_name': 'Mobilposta', 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'}]
+    db.add_poi_types(data)
+    db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta', 'posta.json')
+    db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata', 'postacsekkautomata.json')
+    db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postaautomata', 'postaautomata.json')
+    db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint', 'postapoint.json')
+
     '''
     logging.info('Importing {} stores ...'.format('CIB Bank'))
     data = [{'poi_name': 'CIB bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'},
             {'poi_name': 'CIB', 'poi_tags': "{'amenity': 'atm', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'}]
     db.add_poi_types(data)
-    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'cib_bank.html'), 'CIB bank')
-    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'cib_atm.html'), 'CIB')
+    db.add_cib_bank(os.path.join(DOWNLOAD_CACHE, 'cib_bank.html'), 'CIB bank')
+    db.add_cib_bank(os.path.join(DOWNLOAD_CACHE, 'cib_atm.html'), 'CIB')
     '''
     logging.info('Exporting CSV files ...')
     targets = ['poi_address', 'poi_common']
