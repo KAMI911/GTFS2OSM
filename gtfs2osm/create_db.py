@@ -55,7 +55,7 @@ def get_or_create(session, model, **kwargs):
 def insert_type(session, type_data):
     try:
         for i in type_data:
-            get_or_create(session, POI_common, poi_name=i['poi_name'], poi_tags=i['poi_tags'], poi_url_base=i['poi_url_base'])
+            get_or_create(session, POI_common, poi_name=i['poi_name'], poi_tags=i['poi_tags'], poi_url_base=i['poi_url_base'], poi_code=i['poi_code'])
     except Exception as e:
         print(e)
 
@@ -64,9 +64,11 @@ def insert(session, **kwargs):
     try:
         city_col = session.query(City.city_id).filter(City.city_name == kwargs['poi_city']).filter(
             City.city_post_code == kwargs['poi_postcode']).first()
-        common_col = session.query(POI_common.pc_id).filter(POI_common.poi_name == kwargs['poi_name']).first()
+        common_col = session.query(POI_common.pc_id).filter(POI_common.poi_code == kwargs['poi_code']).first()
         kwargs['poi_addr_city'] = city_col
         kwargs['poi_common_id'] = common_col
+        if 'poi_name' in kwargs: del kwargs['poi_name']
+        if 'poi_code' in kwargs: del kwargs['poi_code']
         get_or_create(session, POI_address, **kwargs )
         session.commit()
     except Exception as e:
@@ -153,14 +155,17 @@ class POI_Base:
                 poi_data[0] = tesco_replace.sub('Expressz', poi_data[0])
                 if 'xpres' in poi_data[0]:
                     name = 'Tesco Expressz'
+                    code = 'hutescoexp'
                 elif 'xtra' in poi_data[0]:
                     name = 'Tesco Extra'
+                    code = 'hutescoext'
                 else:
                     name = 'Tesco'
+                    code = 'hutescosup'
                 poi_data[0] = poi_data[0].replace('TESCO', 'Tesco')
                 poi_data[0] = poi_data[0].replace('Bp.', 'Budapest')
 
-                insert(self.session, poi_city = address.clean_city(poi_data[2].split(',')[0]), poi_name = name, poi_postcode = poi_data[1].strip(), poi_branch = poi_data[0], poi_website = poi_data[4], original = poi_data[3], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data[2].split(',')[0]), poi_name = name, poi_postcode = poi_data[1].strip(), poi_branch = poi_data[0], poi_website = poi_data[4], original = poi_data[3], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_aldi(self, link_base):
@@ -178,7 +183,8 @@ class POI_Base:
             for poi_data in data:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data[2])
                 name = 'Aldi'
-                insert(self.session, poi_city = address.clean_city(poi_data[1]), poi_name = name, poi_postcode =  poi_data[0].strip(), poi_branch = None, poi_website = None, original = poi_data[2], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                code = 'hualdisup'
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data[1]), poi_name = name, poi_postcode =  poi_data[0].strip(), poi_branch = None, poi_website = None, original = poi_data[2], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_cba(self, link_base):
@@ -201,7 +207,8 @@ class POI_Base:
                 postcode = poi_data['A_IRSZ'].strip()
                 branch = poi_data['P_NAME'].strip()
                 name = 'Príma' if 'Príma' in branch else 'CBA'
-                insert(self.session, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                code = 'huprimacon'  if 'Príma' in branch else 'hucbacon'
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = None, original = poi_data['A_CIM'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_rossmann(self, link_base):
@@ -222,8 +229,8 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(
                     poi_data['addresses'][0]['address'])
                 name = 'Rossmann'
-
-                insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
+                code = 'hurossmsch'
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['addresses'][0]['zip'].strip(), poi_branch = None, poi_website = None, original = poi_data['addresses'][0]['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber)
 
 
     def add_spar(self, link_base):
@@ -235,10 +242,13 @@ class POI_Base:
                 street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['address'])
                 if 'xpres' in poi_data['name']:
                     name = 'Spar Expressz'
+                    code = 'husparexp'
                 elif 'INTER' in poi_data['name']:
                     name = 'Interspar'
+                    code = 'husparint'
                 elif 'market' in poi_data['name']:
                     name = 'Spar'
+                    code = 'husparsup'
                 else:
                     name = 'Spar'
                 poi_data['name'] = poi_data['name'].replace('INTERSPAR', 'Interspar')
@@ -246,7 +256,7 @@ class POI_Base:
                 ref_match = PATTERN_SPAR_REF.search(poi_data['name'])
                 ref = ref_match.group(1).strip() if ref_match is not None else None
 
-                insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['zipCode'].strip(), poi_branch = poi_data['name'].split('(')[0].strip(), poi_website = poi_data['pageUrl'].strip(), original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = ref)
 
 
     def add_kh_bank(self, link_base, name = 'K&H bank'):
@@ -278,8 +288,9 @@ class POI_Base:
                 else:
                     name = 'Benu gyógyszertár'
                     branch = poi_data['title'].strip()
+                code = 'hubenupha'
                 website = poi_data['description'].strip() if poi_data['description'] is not None else None
-                insert(self.session, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+                insert(self.session, poi_code = code, poi_city = address.clean_city(poi_data['city']), poi_name = name, poi_postcode = poi_data['postal_code'].strip(), poi_branch = branch, poi_website = website, original = poi_data['street'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
     def add_posta(self, link_base, filename):
         soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
@@ -290,14 +301,19 @@ class POI_Base:
                 if poi_data['type'] == 'posta':
                     if 'mobilposta' in poi_data['name']:
                         name = 'Mobilposta'
+                        code = 'hupostamp'
                     else:
                         name = 'Posta'
+                        code = 'hupostapo'
                 elif poi_data['type'] == 'csekkautomata':
                     name = 'Posta csekkautomata'
+                    code = 'hupostacsa'
                 elif poi_data['type'] == 'postaautomata':
                     name = 'Posta csomagautomata'
+                    code = 'hupostacso'
                 elif poi_data['type'] == 'postapoint':
                     name = 'PostaPont'
+                    code = 'hupostapp'
                 else:
                     logging.error('Non existing Posta type.')
                 postcode = poi_data['zipCode'].strip()
@@ -305,7 +321,7 @@ class POI_Base:
                 city = address.clean_city(poi_data['city'])
                 branch = poi_data['name']
                 website = None
-                insert(self.session, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
 
     def query_all_pd(self, table):
@@ -321,53 +337,53 @@ def main():
     db.add_city('data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
-    data = [{'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
-            {'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
-            {'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'}]
+    data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'}]
     db.add_poi_types(data)
     db.add_tesco('http://tesco.hu/aruhazak/nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('Aldi'))
-    data = [{'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi'}", 'poi_url_base': 'https://www.aldi.hu'}]
+    data = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi'}", 'poi_url_base': 'https://www.aldi.hu'}]
     db.add_poi_types(data)
     db.add_aldi('https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('CBA'))
-    data = [{'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'},
-            {'poi_name': 'Príma', 'poi_tags': "{'shop': 'convenience', 'brand': 'Príma'}", 'poi_url_base': 'https://www.prima.hu'}]
+    data = [{'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'},
+            {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_tags': "{'shop': 'convenience', 'brand': 'Príma'}", 'poi_url_base': 'https://www.prima.hu'}]
     db.add_poi_types(data)
     db.add_cba('http://www.cba.hu/uzletlista/')
 
     logging.info('Importing {} stores ...'.format('Spar'))
-    data = [{'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
-            {'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
-            {'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'}]
+    data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
+            {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
+            {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'}]
     db.add_poi_types(data)
     db.add_spar('https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU')
 
     logging.info('Importing {} stores ...'.format('Rossmann'))
-    data = [{'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann'}", 'poi_url_base': 'https://www.rossmann.hu'}]
+    data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann'}", 'poi_url_base': 'https://www.rossmann.hu'}]
     db.add_poi_types(data)
     db.add_rossmann('https://www.rossmann.hu/uzletkereso')
 
     logging.info('Importing {} stores ...'.format('KH Bank'))
-    data = [{'poi_name': 'K&H bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.kh.hu'},
-            {'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
+    data = [{'poi_code': 'hukhbank', 'poi_name': 'K&H bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.', bic': 'OKHBHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.kh.hu'},
+            {'poi_code': 'hukhatm', 'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
     db.add_poi_types(data)
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'), 'K&H bank')
     # db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
 
     logging.info('Importing {} stores ...'.format('BENU'))
-    data = [{'poi_name': 'Benu gyógyszertár', 'poi_tags':"{'amenity': 'pharmacy', 'dispensing': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
+    data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_tags':"{'amenity': 'pharmacy', 'dispensing': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
     db.add_poi_types(data)
     db.add_benu('https://benu.hu/wordpress-core/wp-admin/admin-ajax.php?action=asl_load_stores&nonce=1900018ba1&load_all=1&layout=1')
 
     logging.info('Importing {} stores ...'.format('Magyar Posta'))
-    data = [{'poi_name': 'Posta', 'poi_tags':"{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
-            {'poi_name': 'Posta csekkautomata', 'poi_tags': "{'amenity': 'vending_machine', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
-            {'poi_name': 'Posta csomagautomata', 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
-            {'poi_name': 'PostaPont', 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
-            {'poi_name': 'Mobilposta', 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'}]
+    data = [{'poi_code': 'hupostapo', 'poi_name': 'Posta', 'poi_tags':"{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_code': 'hupostacse', 'poi_name': 'Posta csekkautomata', 'poi_tags': "{'amenity': 'vending_machine', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_code': 'hupostacso', 'poi_name': 'Posta csomagautomata', 'poi_tags': "{'amenity': 'vending_machine', 'vending': 'parcel_pickup', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_code': 'hupostapp', 'poi_name': 'PostaPont', 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'},
+            {'poi_code': 'hupostamp', 'poi_name': 'Mobilposta', 'poi_tags': "{'amenity': 'post_office', 'brand': 'Magyar Posta', operator: 'Magyar Posta Zrt.'}", 'poi_url_base': 'https://www.posta.hu'}]
     db.add_poi_types(data)
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=posta', 'posta.json')
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata', 'postacsekkautomata.json')
@@ -376,8 +392,8 @@ def main():
 
     '''
     logging.info('Importing {} stores ...'.format('CIB Bank'))
-    data = [{'poi_name': 'CIB bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'},
-            {'poi_name': 'CIB', 'poi_tags': "{'amenity': 'atm', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'}]
+    data = [{'poi_code': 'hucibbank', 'poi_name': 'CIB bank', 'poi_tags': "{'amenity': 'bank', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.', bic': 'CIBHHUHB', 'atm': 'yes'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'},
+            {'poi_code': 'hucibatm', 'poi_name': 'CIB', 'poi_tags': "{'amenity': 'atm', 'brand': 'CIB', 'operator': 'CIB Bank Zrt.'}", 'poi_url_base': 'https://www.cib.hu/elerhetosegek/fiokok_bankautomatak/index'}]
     db.add_poi_types(data)
     db.add_cib_bank(os.path.join(DOWNLOAD_CACHE, 'cib_bank.html'), 'CIB bank')
     db.add_cib_bank(os.path.join(DOWNLOAD_CACHE, 'cib_atm.html'), 'CIB')

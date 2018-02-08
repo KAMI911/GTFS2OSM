@@ -17,7 +17,6 @@ class POI_address(Base):
     id = synonym('pa_id')
     poi_osm_id = Column(Integer, unique=True, index=True)
     poi_common_id = Column(ForeignKey('poi_common.pc_id'), index=True)
-    poi_name = Column(Unicode(64), nullable=False, index=True)
     poi_branch = Column(Unicode(64), nullable=True, index=True)
     poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
     poi_postcode = Column(Integer)
@@ -54,6 +53,7 @@ class POI_common(Base):
     poi_name = Column(Unicode(64), unique=True, nullable=False, index=True)
     poi_tags = Column(Unicode(256), nullable=False, index=True)
     poi_url_base = Column(Unicode(32))
+    poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
 
     def __repr__(self):
         return '<POI common {}: {}>'.format(self.poi_id, self.poi_name)
