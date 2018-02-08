@@ -1,6 +1,6 @@
 try:
     import unittest
-    from gtfs2osm.libs.address import extract_street_housenumber_better, extract_all_address
+    from ...libs.address import extract_street_housenumber_better, extract_all_address
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
