@@ -17,7 +17,7 @@ except ImportError as err:
 
 
 __program__ = 'create_db'
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 
 output_folder = '.'
@@ -265,8 +265,12 @@ class POI_Base:
                 text = json.load(f)
                 for poi_data in text['results']:
                     first_element = next(iter(poi_data))
+                    if name == 'K&H bank':
+                        code = 'hukhbank'
+                    else:
+                        code = 'hukhbank'
                     postcode, city, street, housenumber, conscriptionnumber = address.extract_all_address(poi_data[first_element]['address'])
-                    insert(self.session, poi_city=city, poi_name=name,
+                    insert(self.session, poi_code = code, poi_city=city, poi_name=name,
                            poi_postcode=postcode, poi_branch=None,
                            poi_website=None, original=poi_data[first_element]['address'], poi_addr_street=street,
                            poi_addr_housenumber=housenumber, poi_conscriptionnumber=conscriptionnumber, poi_ref=None)
@@ -371,7 +375,7 @@ def main():
             {'poi_code': 'hukhatm', 'poi_name': 'K&H', 'poi_tags': "{'amenity': 'atm', 'brand': 'K&H', 'operator': 'K&H Bank Zrt.'}", 'poi_url_base': 'https://www.kh.hu'}]
     db.add_poi_types(data)
     db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_bank.json'), 'K&H bank')
-    # db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
+    db.add_kh_bank(os.path.join(DOWNLOAD_CACHE, 'kh_atm.json'), 'K&H')
 
     logging.info('Importing {} stores ...'.format('BENU'))
     data = [{'poi_code': 'hubenupha', 'poi_name': 'Benu gyógyszertár', 'poi_tags':"{'amenity': 'pharmacy', 'dispensing': 'yes'}", 'poi_url_base': 'https://www.benu.hu'}]
