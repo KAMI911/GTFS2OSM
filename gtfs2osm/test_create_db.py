@@ -1,6 +1,6 @@
 try:
     import unittest
-    from .test.test_address import TestAddressResolver, TestFullAddressResolver
+    from gtfs2osm.test.test_address import TestAddressResolver, TestFullAddressResolver
 
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
