@@ -40,6 +40,7 @@ class POI_address(Base):
     poi_opening_hours_su = Column(Unicode(64))
     poi_hash = Column(Unicode(128), nullable=True, unique=True, index=True)
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
+    poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
 
     common = relationship('POI_common', primaryjoin='POI_address.poi_common_id == POI_common.pc_id',
@@ -56,7 +57,7 @@ class POI_common(Base):
     pc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pc_id')
     poi_name = Column(Unicode(64), unique=True, nullable=False, index=True)
-    poi_tags = Column(Unicode(256), nullable=False, index=True)
+    poi_tags = Column(Unicode(1024), nullable=False, index=True)
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
 

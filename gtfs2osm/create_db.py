@@ -343,9 +343,9 @@ def main():
     db.add_city('data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
-    data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
-            {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'},
-            {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco'}", 'poi_url_base': 'https://www.tesco.hu'}]
+    data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag'}", 'poi_url_base': 'https://www.tesco.hu'}]
     db.add_poi_types(data)
     db.add_tesco('http://tesco.hu/aruhazak/nyitvatartas/')
 
