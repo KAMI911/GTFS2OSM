@@ -7,6 +7,7 @@ try:
     import os
     import json
     import logging, logging.config
+    import hashlib
     from bs4 import BeautifulSoup
     from gtfs2osm.libs import address
     from gtfs2osm.dao.data_structure import Base, City, POI_address, POI_common
@@ -67,6 +68,7 @@ def insert(session, **kwargs):
         common_col = session.query(POI_common.pc_id).filter(POI_common.poi_code == kwargs['poi_code']).first()
         kwargs['poi_addr_city'] = city_col
         kwargs['poi_common_id'] = common_col
+        kwargs['poi_hash'] = hashlib.sha512('{}{}{}{}{}{}'.format(kwargs['poi_code'], kwargs['poi_postcode'], kwargs['poi_city'], kwargs['poi_addr_street'], kwargs['poi_addr_housenumber'], kwargs['poi_conscriptionnumber'] ).lower().replace(' ','').encode('utf-8')).hexdigest()
         if 'poi_name' in kwargs: del kwargs['poi_name']
         if 'poi_code' in kwargs: del kwargs['poi_code']
         get_or_create(session, POI_address, **kwargs )

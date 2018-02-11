@@ -1,13 +1,18 @@
 try:
     from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, UniqueConstraint
-    from sqlalchemy import Integer, Unicode, DateTime, func
+    from sqlalchemy import Integer, Unicode, DateTime, Enum, func
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import synonym, relationship
+    import enum
 except ImportError as err:
     print('Error {0} import module: {1}'.format(__name__, err))
     exit(128)
 
 Base = declarative_base()
+
+class OSM_type(enum.Enum):
+    node = 0
+    way = 1
 
 
 class POI_address(Base):
@@ -15,7 +20,6 @@ class POI_address(Base):
     _plural_name_ = 'poi_address'
     pa_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pa_id')
-    poi_osm_id = Column(Integer, unique=True, index=True)
     poi_common_id = Column(ForeignKey('poi_common.pc_id'), index=True)
     poi_branch = Column(Unicode(64), nullable=True, index=True)
     poi_addr_city = Column(ForeignKey('city.city_id'), index=True)
@@ -34,6 +38,7 @@ class POI_address(Base):
     poi_opening_hours_fr = Column(Unicode(64))
     poi_opening_hours_sa = Column(Unicode(64))
     poi_opening_hours_su = Column(Unicode(64))
+    poi_hash = Column(Unicode(128), nullable=True, unique=True, index=True)
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_deleted = Column(DateTime(True))
 
@@ -71,3 +76,15 @@ class City(Base):
 
     def __repr__(self):
         return '<City {}: {} ({})>'.format(self.city_id, self.city_name, self.city_post_code)
+
+
+class POI_osm(Base):
+    __tablename__ = 'poi_osm'
+    _plural_name_ = 'poi_osm'
+    po_id = Column(Integer, primary_key=True, index=True)
+    id = synonym('po_id')
+    poi_osm_id = Column(Integer, unique=True, index=True)
+    poi_osm_type = Column(Enum(OSM_type))
+    poi_hash = Column(Unicode(128), nullable=True, unique=True, index=True)
+
+    __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_type', name='uc_poi_osm_osm_type'),)
