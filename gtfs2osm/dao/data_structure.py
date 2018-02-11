@@ -38,7 +38,7 @@ class POI_address(Base):
     poi_opening_hours_fr = Column(Unicode(64))
     poi_opening_hours_sa = Column(Unicode(64))
     poi_opening_hours_su = Column(Unicode(64))
-    poi_hash = Column(Unicode(128), nullable=True, unique=True, index=True)
+    poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
     poi_created = Column(DateTime(True), nullable=False, server_default=func.now())
     poi_updated = Column(DateTime(True))
     poi_deleted = Column(DateTime(True))
@@ -56,7 +56,7 @@ class POI_common(Base):
     _plural_name_ = 'poi_common'
     pc_id = Column(Integer, primary_key=True, index=True)
     id = synonym('pc_id')
-    poi_name = Column(Unicode(64), unique=True, nullable=False, index=True)
+    poi_name = Column(Unicode(64), unique=False, nullable=False, index=True)
     poi_tags = Column(Unicode(1024), nullable=False, index=True)
     poi_url_base = Column(Unicode(32))
     poi_code = Column(Unicode(10), unique=True, nullable=False, index=True)
@@ -86,6 +86,6 @@ class POI_osm(Base):
     id = synonym('po_id')
     poi_osm_id = Column(Integer, unique=True, index=True)
     poi_osm_type = Column(Enum(OSM_type))
-    poi_hash = Column(Unicode(128), nullable=True, unique=True, index=True)
+    poi_hash = Column(Unicode(128), nullable=True, unique=False, index=True)
 
     __table_args__ = (UniqueConstraint('poi_osm_id', 'poi_osm_type', name='uc_poi_osm_osm_type'),)
