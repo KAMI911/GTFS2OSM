@@ -330,6 +330,29 @@ class POI_Base:
                 insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None)
 
 
+    def add_foxpost(self, link_base, filename):
+        soup = save_downloaded_soup('{}'.format(link_base), os.path.join(DOWNLOAD_CACHE, filename))
+        data = []
+        if soup != None:
+            text = json.loads(soup.get_text())
+            for poi_data in text:
+                name = 'Foxpost'
+                code = 'hufoxpocso'
+                postcode = poi_data['zip'].strip()
+                street, housenumber, conscriptionnumber = address.extract_street_housenumber_better(poi_data['street'])
+                city = address.clean_city(poi_data['city'])
+                branch = poi_data['name']
+                website = None
+                mo = poi_data['open']['hetfo'].strip() if poi_data['open']['hetfo'] is not None else None
+                th = poi_data['open']['kedd'].strip() if poi_data['open']['kedd'] is not None else None
+                we = poi_data['open']['szerda'].strip() if poi_data['open']['szerda'] is not None else None
+                tu = poi_data['open']['csutortok'].strip() if poi_data['open']['csutortok'] is not None else None
+                fr = poi_data['open']['pentek'].strip() if poi_data['open']['pentek'] is not None else None
+                sa = poi_data['open']['szombat'].strip() if poi_data['open']['szombat'] is not None else None
+                su = poi_data['open']['vasarnap'].strip() if poi_data['open']['vasarnap'] is not None else None
+                insert(self.session, poi_code = code, poi_city = city, poi_name = name, poi_postcode = postcode, poi_branch = branch, poi_website = website, original = poi_data['address'], poi_addr_street = street, poi_addr_housenumber = housenumber, poi_conscriptionnumber = conscriptionnumber, poi_ref = None, poi_opening_hours_mo = mo, poi_opening_hours_tu = tu, poi_opening_hours_we = we, poi_opening_hours_th = th, poi_opening_hours_fr = fr, poi_opening_hours_sa = sa, poi_opening_hours_su = su)
+
+
     def query_all_pd(self, table):
         return pd.read_sql_table(table, self.engine)
 
@@ -396,8 +419,14 @@ def main():
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postaautomata', 'postaautomata.json')
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint', 'postapoint.json')
 
+    logging.info('Importing {} stores ...'.format('Penny Market'))
     data = [{'poi_code': 'hupennysup', 'poi_name': 'Penny Market', 'poi_tags':"{'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN', 'contact:email': 'ugyfelszolgalat@penny.hu', 'contact:facebook': 'https://www.facebook.com/PennyMarketMagyarorszag', 'contact:instagram': 'https://www.instagram.com/pennymarkethu/', 'contact:youtube': 'https://www.youtube.com/channel/UCSy0KKUrDxVWkx8qicky_pQ', 'payment:debit_cards': 'yes', 'ref:vatin:hu': '10969629-2-44'}", 'poi_url_base': 'https://www.penny.hu'}]
     db.add_poi_types(data)
+
+    logging.info('Importing {} stores ...'.format('Foxpost'))
+    data = [{'poi_code': 'hufoxpocso', 'poi_name': 'Foxpost', 'poi_tags':"{'amenity': 'vending_machine', 'vending': 'parcel_pickup;parcel_mail_in', 'brand': 'Foxpost', operator: 'FoxPost Zrt.', 'contact:facebook': 'https://www.facebook.com/foxpostzrt', 'contact:youtube': 'https://www.youtube.com/channel/UC3zt91sNKPimgA32Nmcu97w', 'contact:email': 'info@foxpost.hu', 'contact:phone': '+36 1 999 03 69', 'payment:debit_cards': 'yes', 'payment:cash': 'no'}", 'poi_url_base': 'https://www.foxpost.hu/'}]
+    db.add_poi_types(data)
+    db.add_foxpost('http://www.foxpost.hu/wp-content/themes/foxpost/googleapijson.php', 'foxpostautomata.json')
 
     '''
     logging.info('Importing {} stores ...'.format('CIB Bank'))
