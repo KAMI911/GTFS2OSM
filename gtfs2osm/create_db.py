@@ -343,32 +343,32 @@ def main():
     db.add_city('data/Iranyitoszam-Internet.XLS')
 
     logging.info('Importing {} stores ...'.format('Tesco'))
-    data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag'}", 'poi_url_base': 'https://www.tesco.hu'},
-            {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag'}", 'poi_url_base': 'https://www.tesco.hu'},
-            {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag'}", 'poi_url_base': 'https://www.tesco.hu'}]
+    data = [{'poi_code': 'hutescoexp', 'poi_name': 'Tesco Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_code': 'hutescoext', 'poi_name': 'Tesco Extra', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.tesco.hu'},
+            {'poi_code': 'hutescosup', 'poi_name': 'Tesco', 'poi_tags': "{'shop': 'supermarket', 'operator': 'Tesco Global Áruházak Zrt.', 'brand': 'Tesco', 'contact:website': 'https://www.tesco.hu', 'contact:facebook':'https://www.facebook.com/tescoaruhazak/', 'contact:youtube':'https://www.youtube.com/user/TescoMagyarorszag', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.tesco.hu'}]
     db.add_poi_types(data)
     db.add_tesco('http://tesco.hu/aruhazak/nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('Aldi'))
-    data = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi'}", 'poi_url_base': 'https://www.aldi.hu'}]
+    data = [{'poi_code': 'hualdisup', 'poi_name': 'Aldi', 'poi_tags': "{'shop': 'supermarket', 'operator': 'ALDI Magyarország Élelmiszer Bt.', 'brand': 'Aldi', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.aldi.hu'}]
     db.add_poi_types(data)
     db.add_aldi('https://www.aldi.hu/hu/informaciok/informaciok/uezletkereso-es-nyitvatartas/')
 
     logging.info('Importing {} stores ...'.format('CBA'))
-    data = [{'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA'}", 'poi_url_base': 'https://www.cba.hu'},
-            {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_tags': "{'shop': 'convenience', 'brand': 'Príma'}", 'poi_url_base': 'https://www.prima.hu'}]
+    data = [{'poi_code': 'hucbacon', 'poi_name': 'CBA', 'poi_tags': "{'shop': 'convenience', 'brand': 'CBA', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.cba.hu'},
+            {'poi_code': 'huprimacon', 'poi_name': 'Príma', 'poi_tags': "{'shop': 'convenience', 'brand': 'Príma', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.prima.hu'}]
     db.add_poi_types(data)
     db.add_cba('http://www.cba.hu/uzletlista/')
 
     logging.info('Importing {} stores ...'.format('Spar'))
-    data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
-            {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'},
-            {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar'}", 'poi_url_base': 'https://www.spar.hu'}]
+    data = [{'poi_code': 'husparexp', 'poi_name': 'Spar Expressz', 'poi_tags':"{'shop': 'convenience', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.spar.hu'},
+            {'poi_code': 'husparint', 'poi_name': 'Interspar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.spar.hu'},
+            {'poi_code': 'husparsup', 'poi_name': 'Spar', 'poi_tags': "{'shop': 'supermarket', 'operator': 'SPAR Magyarország Kereskedelmi Kft.', 'brand': 'Spar', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.spar.hu'}]
     db.add_poi_types(data)
     db.add_spar('https://www.spar.hu/bin/aspiag/storefinder/stores?country=HU')
 
     logging.info('Importing {} stores ...'.format('Rossmann'))
-    data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann'}", 'poi_url_base': 'https://www.rossmann.hu'}]
+    data = [{'poi_code': 'hurossmche', 'poi_name': 'Rossmann', 'poi_tags': "{'shop': 'chemist', 'operator': 'Rossmann Magyarország Kft.', 'brand':'Rossmann', 'payment:debit_cards': 'yes'}", 'poi_url_base': 'https://www.rossmann.hu'}]
     db.add_poi_types(data)
     db.add_rossmann('https://www.rossmann.hu/uzletkereso')
 
@@ -395,6 +395,9 @@ def main():
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=csekkautomata', 'postacsekkautomata.json')
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postaautomata', 'postaautomata.json')
     db.add_posta('https://www.posta.hu/szolgaltatasok/posta-srv-postoffice/rest/postoffice/list?searchField=&searchText=&types=postapoint', 'postapoint.json')
+
+    data = [{'poi_code': 'hupennysup', 'poi_name': 'Penny Market', 'poi_tags':"{'shop': 'supermarket', 'operator': 'Penny Market Kft.', 'brand': 'Penny Market', 'internet_access': 'wlan', 'internet_access:fee': 'no', 'internet_access:ssid': 'PENNY FREE WLAN', 'contact:email': 'ugyfelszolgalat@penny.hu', 'contact:facebook': 'https://www.facebook.com/PennyMarketMagyarorszag', 'contact:instagram': 'https://www.instagram.com/pennymarkethu/', 'contact:youtube': 'https://www.youtube.com/channel/UCSy0KKUrDxVWkx8qicky_pQ', 'payment:debit_cards': 'yes', 'ref:vatin:hu': '10969629-2-44'}", 'poi_url_base': 'https://www.penny.hu'}]
+    db.add_poi_types(data)
 
     '''
     logging.info('Importing {} stores ...'.format('CIB Bank'))
